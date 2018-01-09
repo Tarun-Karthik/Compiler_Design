@@ -1,0 +1,8 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+// single line comment
+
+/* this is a multi line comment*/
+
+number89 // this is a variable
