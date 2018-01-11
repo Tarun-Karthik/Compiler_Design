@@ -4,6 +4,9 @@ void func(){
 	//Single line comment
 }
 
+int func( {
+	//function with errors 
+}
 int main(){	
 	int +p, a;
 	char c;
