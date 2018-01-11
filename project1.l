@@ -9,7 +9,7 @@ int linecount = 0;
 
 preprocessor #include
 header <[a-zA-Z]+\.h>
-keywords auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while
+keywords auto|break|case|const|continue|default|do|double|else|enum|extern|for|goto|if|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while
 line [\n]
 space [ ]
 startc "/*"
@@ -17,13 +17,26 @@ endc "*/"
 varchar [a-zA-Z_][a-zA-Z0-9_]*
 number [0-9]*
 string \".+\"
+datatype int|float|char
+openbc [(]
+closebc [)]
 
 %s comment
+%s function
 
 %%
+
+{datatype} {BEGIN function; printf("\nline number : %d : %s : is a return type\n",linecount,yytext); }
+<function>{space} ;
+<function>{varchar} {BEGIN function; printf("\nline number : %d : %s : is a function name\n",linecount,yytext); }
+<function>{openbc} ;
+<function>{closebc} {BEGIN 0;}
+
 [/]{1}[/]{1}[a-zA-Z0-9 ]* {   printf("\nline number : %d : %s : is a comment\n",linecount,yytext);  }
 
 {keywords} { keywordcount++;     printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);     }
+
+
 
 {startc} 	{BEGIN comment; printf("\nmultiline comment starts at line %d\n",linecount);}
 <comment>\n	{BEGIN comment;  linecount++;}
@@ -31,6 +44,8 @@ string \".+\"
 <comment>{endc}	{BEGIN 0; printf("\nmultiline comment end at line %d\n",linecount); }
 
 {line} {  linecount++;  }
+
+{datatype} {printf("\nline number : %d : %s is a datatype\n",linecount,yytext);}
 
 {number} {printf("\nline number : %d : %s is a number\n",linecount,yytext);}
 
@@ -102,9 +117,9 @@ string \".+\"
 
 "}"  {printf("\nline number : %d : closing curly brace %s\n",linecount,yytext);}
 
-"("  {printf("\nline number : %d : open brackets %s\n",linecount,yytext);}
+{openbc} {printf("\nline number : %d : open round brace %s\n",linecount,yytext);}
 
-")"  {printf("\nline number : %d : close brackets %s\n",linecount,yytext);}
+{closebc} {printf("\nline number : %d : close round brace %s\n",linecount,yytext);}
 %%
 
 int main()
@@ -117,5 +132,3 @@ int yywrap()
 {
   return (1);
 }
-
-
