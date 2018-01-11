@@ -20,16 +20,16 @@ string \".+\"
 datatype int|float|char
 openbc [(]
 closebc [)]
-
 %s comment
 %s function
 
 %%
 
-{datatype} {BEGIN function; printf("\nline number : %d : %s : is a return type\n",linecount,yytext); }
+{datatype} {BEGIN function; printf("\nline number : %d : %s : is a data type\n",linecount,yytext); }
 <function>{space} ;
-<function>{varchar} {BEGIN function; printf("\nline number : %d : %s : is a function name\n",linecount,yytext); }
+<function>[a-zA-Z_][a-zA-Z0-9_]+ {BEGIN function; printf("\nline number : %d : %s : is a function name\n",linecount,yytext); }
 <function>{openbc} ;
+<function>{space}* ;
 <function>{closebc} {BEGIN 0;}
 
 [/]{1}[/]{1}[a-zA-Z0-9 ]* {   printf("\nline number : %d : %s : is a comment\n",linecount,yytext);  }
@@ -44,8 +44,6 @@ closebc [)]
 <comment>{endc}	{BEGIN 0; printf("\nmultiline comment end at line %d\n",linecount); }
 
 {line} {  linecount++;  }
-
-{datatype} {printf("\nline number : %d : %s is a datatype\n",linecount,yytext);}
 
 {number} {printf("\nline number : %d : %s is a number\n",linecount,yytext);}
 
