@@ -1,8 +1,9 @@
 #include<stdio.h>
-#include<stdlib.h>
+int main()
+{
 
-// single line comment
-
-/* this is a multi line comment*/
-
-number89 // this is a variable
+	int a=2,b=3,c;
+	c=a+b;
+	printf("a+b=%d",c);
+	return 0;
+}
