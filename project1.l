@@ -4,12 +4,12 @@
 #include <ctype.h>
 #include <stdio.h>
 int keywordcount = 0;
-int linecount = 0;
+int linecount = 1;
 %}
 
 preprocessor #include
 header <[a-zA-Z]+\.h>
-keywords auto|break|case|const|continue|default|do|double|else|enum|extern|for|goto|if|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while
+keywords auto|break|case|const|continue|default|do|double|else|enum|extern|for|goto|if|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|printf|scanf
 line [\n]
 space [ ]
 startc "/*"
@@ -20,23 +20,17 @@ string \".+\"
 datatype int|float|char
 openbc [(]
 closebc [)]
+
+
 %s comment
 %s function
 
 %%
-
-{datatype} {BEGIN function; printf("\nline number : %d : %s : is a data type\n",linecount,yytext); }
-<function>{space} ;
-<function>[a-zA-Z_][a-zA-Z0-9_]+ {BEGIN function; printf("\nline number : %d : %s : is a function name\n",linecount,yytext); }
-<function>{openbc} ;
-<function>{space}* ;
-<function>{closebc} {BEGIN 0;}
+[int|float|char|void]+[ ]+[a-zA-Z_][a-zA-Z0-9_]*[(]{1}[int|float|char]*[ ]*[a-zA-Z_]*[a-zA-Z0-9_]*[)]{1} {BEGIN 0; printf("\nline number : %d : %s : is a function decleration\n",linecount,yytext); }
 
 [/]{1}[/]{1}[a-zA-Z0-9 ]* {   printf("\nline number : %d : %s : is a comment\n",linecount,yytext);  }
 
 {keywords} { keywordcount++;     printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);     }
-
-
 
 {startc} 	{BEGIN comment; printf("\nmultiline comment starts at line %d\n",linecount);}
 <comment>\n	{BEGIN comment;  linecount++;}
@@ -44,6 +38,10 @@ closebc [)]
 <comment>{endc}	{BEGIN 0; printf("\nmultiline comment end at line %d\n",linecount); }
 
 {line} {  linecount++;  }
+
+{datatype} {printf("\nline number : %d : %s is a data type\n",linecount,yytext);}
+
+{varchar} {printf("\nline number : %d : %s is a variable name\n",linecount,yytext);}
 
 {number} {printf("\nline number : %d : %s is a number\n",linecount,yytext);}
 
@@ -54,8 +52,6 @@ closebc [)]
 {preprocessor} {printf("\nline number : %d : %s is a preprocessor\n",linecount,yytext);}
 
 {header} {printf("\nline number : %d : %s is a header\n",linecount,yytext);}
-
-{varchar} {printf("\nline number : %d : %s is a variable name\n",linecount,yytext);}
 
 "=" {printf("\nline number : %d : equal to operator %s\n",linecount,yytext);}
 
