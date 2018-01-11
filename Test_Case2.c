@@ -21,7 +21,7 @@ int main(){
 	
 	printf("q value= %d\n", q);
 
-	if(a == q){
+	if(a = q){     //ERROR- comparision error, operator should be ==
 		printf("a is equal to q\n" );
 	}
 	else
@@ -29,7 +29,7 @@ int main(){
 		printf("a is not equal to q\n");
 	}
 	
-	while(a){
+	while{ // ERROR- braces are missing here
 		
 		while(b){
 			
