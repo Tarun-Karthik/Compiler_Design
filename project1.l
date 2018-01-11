@@ -39,6 +39,72 @@ wrongid [0-9]+[a-zA-Z0-9]*
 
 {wrongid} {printf("\nError at Line number : %d : Error Message : Invalid Identifier\n",linecount);
 
+"+" {printf("\nline number : %d : addition operator %s\n",linecount,yytext);
+
+"-" {printf("\nline number : %d : subtraction operator %s\n",linecount,yytext);
+
+"*" {printf("\nline number : %d : multiplication operator %s\n",linecount,yytext);
+
+"/" {printf("\nline number : %d : division operator %s\n",linecount,yytext);
+
+"%" {printf("\nline number : %d : modulo operator %s\n",linecount,yytext);
+
+"++" {printf("\nline number : %d : increment operator %s\n",linecount,yytext);
+
+"--" {printf("\nline number : %d : decrement operator %s\n",linecount,yytext);
+
+"+=" {printf("\nline number : %d : add & assign operator %s\n",linecount,yytext);
+
+"-=" {printf("\nline number : %d : subtract & assign operator %s\n",linecount,yytext);
+
+"*=" {printf("\nline number : %d : multiply & assign operator %s\n",linecount,yytext);
+
+"/=" {printf("\nline number : %d : divide & assign operator %s\n",linecount,yytext);
+
+"==" {printf("\nline number : %d : equal to operator %s\n",linecount,yytext);
+
+"%=" {printf("\nline number : %d : modulo & assign to operator %s\n",linecount,yytext);
+
+">=" {printf("\nline number : %d : greater than or equal to operator %s\n",linecount,yytext);
+
+"<=" {printf("\nline number : %d : less than or equal to operator %s\n",linecount,yytext);
+
+"!=" {printf("\nline number : %d : not equal to operator %s\n",linecount,yytext);
+
+">" {printf("\nline number : %d : greater than operator %s\n",linecount,yytext);
+
+"<"	{printf("\nline number : %d : less than operator %s\n",linecount,yytext);
+
+"?"	{printf("\nline number : %d : conditional operator %s\n",linecount,yytext);
+
+"&"	{printf("\nline number : %d : bit wise AND operator %s\n",linecount,yytext);
+
+"|"	{printf("\nline number : %d : bit wise OR operator %s\n",linecount,yytext);
+
+"||"	{printf("\nline number : %d : OR operator %s\n",linecount,yytext);
+
+"&&"	{printf("\nline number : %d : AND operator %s\n",linecount,yytext);
+
+"!"	{printf("\nline number : %d : NOT operator %s\n",linecount,yytext);
+
+":"	{printf("\nline number : %d : Colon %s\n",linecount,yytext);
+
+";"	{printf("\nline number : %d : semi colon %s\n",linecount,yytext);
+
+","	{printf("\nline number : %d : comma %s\n",linecount,yytext);
+
+"{"	{printf("\nline number : %d : open curly brace %s\n",linecount,yytext);
+
+"}"	{printf("\nline number : %d : closing curly brace %s\n",linecount,yytext);
+
+"("	{printf("\nline number : %d : open brackets %s\n",linecount,yytext);
+
+")" {printf("\nline number : %d : close brackets %s\n",linecount,yytext);
+
+"["	{printf("\nline number : %d : open square brackets %s\n",linecount,yytext);
+
+"]" {printf("\nline number : %d : close square brackets %s\n",linecount,yytext);
+
 %%
 
 int main()
