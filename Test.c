@@ -4,17 +4,14 @@ void func(){
 	//Single line comment
 }
 
-int func( {
-	//function with errors 
-}
 int main(){	
-	int +p, a;
+	int +p, 00a, integer;
 	char c;
 	float b;
 	
 	/*
-	Here is the 
-	multiline comment	
+	Here is the/*
+	multiline comment error	
 	*/
 
 	func();     //Function	
