@@ -29,6 +29,7 @@ digit [0-9]
 invalidid {digit}+[_a-zA-Z]+[_a-zA-Z0-9]*
 pointer "*"{varchar}
 array {varchar}"["{number}+"]"
+illegel "@"|"$"
 
 %s comment
 %s function
@@ -37,6 +38,10 @@ array {varchar}"["{number}+"]"
 
 {preprocessor} {printf("\nline number : %d : %s is a preprocessor\n",linecount,yytext);if(mcomment==0)
 Insert("preprocessor",yytext,Search(yytext));}
+
+[int|float|char|void]+[ ]+[a-zA-Z_][a-zA-Z0-9_]*[(]{1}[int|float|char]*[ ]*[a-zA-Z_]*[a-zA-Z0-9_]*[)]{1} {BEGIN 0; printf("\nline number : %d : %s : is a function \n",linecount,yytext); }
+
+{illegel} {printf("\nERROR : Line number %d : Illegel Token  :%s",linecount,yytext);exit(1);}
 
 {header} {printf("\nline number : %d : %s is a header\n",linecount,yytext);if(mcomment==0)Insert("header",yytext,Search(yytext));}
 
