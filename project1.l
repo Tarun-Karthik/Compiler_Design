@@ -27,7 +27,8 @@ openbc [(]
 closebc [)]
 digit [0-9]
 invalidid {digit}+[_a-zA-Z]+[_a-zA-Z0-9]*
-
+pointer "*"{varchar}
+array {varchar}"["{number}+"]"
 
 %s comment
 %s function
@@ -51,6 +52,10 @@ Insert("preprocessor",yytext,Search(yytext));}
 <comment>{endc}	{BEGIN 0; if(mcomment == 1)printf("\nmultiline comment end at line %d\n",linecount); mcomment = 0;}
 
 {line} {  linecount++;  }
+
+{pointer} {printf("\nline number : %d : %s is a (pointer) variable name\n",linecount,yytext);if(mcomment==0)Insert("identifier",yytext,Search(yytext));}
+
+{array} {printf("\nline number : %d : %s is a (array) variable name\n",linecount,yytext);if(mcomment==0)Insert("identifier",yytext,Search(yytext));}
 
 {varchar} {printf("\nline number : %d : %s is a variable name\n",linecount,yytext);if(mcomment==0)Insert("identifier",yytext,Search(yytext));}
 
