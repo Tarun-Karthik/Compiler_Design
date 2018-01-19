@@ -5,7 +5,7 @@ void func(){
 }
 
 int main(){	
-	int +p, 00a, integer;
+	int *p, 00a, integer;
 	char c;
 	float b;
 	
