@@ -21,7 +21,7 @@ space [ ]
 startc "/*"
 endc "*/"
 varchar [a-zA-Z_][a-zA-Z0-9_]*
-number [0-9]*
+number [0-9]*"."[0-9]*
 string \".+\"
 openbc [(]
 closebc [)]
@@ -30,18 +30,20 @@ invalidid {digit}+[_a-zA-Z]+[_a-zA-Z0-9]*
 pointer "*"{varchar}
 array {varchar}"["{number}+"]"
 illegel "@"|"$"
+define #define
 
 %s comment
 %s function
 
 %%
 
+{define} {printf("\nline number : %d : %s is a definition\n",linecount,yytext);if(mcomment==0)
+Insert("definition",yytext,Search(yytext));}
+
 {preprocessor} {printf("\nline number : %d : %s is a preprocessor\n",linecount,yytext);if(mcomment==0)
 Insert("preprocessor",yytext,Search(yytext));}
 
 [int|float|char|void]+[ ]+[a-zA-Z_][a-zA-Z0-9_]*[(]{1}[int|float|char]*[ ]*[a-zA-Z_]*[a-zA-Z0-9_]*[)]{1} {BEGIN 0; printf("\nline number : %d : %s : is a function \n",linecount,yytext); }
-
-{illegel} {printf("\nERROR : Line number %d : Illegel Token  :%s",linecount,yytext);exit(1);}
 
 {header} {printf("\nline number : %d : %s is a header\n",linecount,yytext);if(mcomment==0)Insert("header",yytext,Search(yytext));}
 
@@ -57,6 +59,8 @@ Insert("preprocessor",yytext,Search(yytext));}
 <comment>{endc}	{BEGIN 0; if(mcomment == 1)printf("\nmultiline comment end at line %d\n",linecount); mcomment = 0;}
 
 {line} {  linecount++;  }
+
+{illegel} {if(mcomment==0){printf("\nERROR : Line number %d : Illegel Token  :%s",linecount,yytext);exit(1);}}
 
 {pointer} {printf("\nline number : %d : %s is a (pointer) variable name\n",linecount,yytext);if(mcomment==0)Insert("identifier",yytext,Search(yytext));}
 
@@ -154,11 +158,11 @@ int main()
   yyout= file;
   yylex();
   fclose(yyin);
-  
+
   Display();
   fclose(yyout);
   return(0);
-  
+
 }
 
 void Insert(char l[100],char a[100],int op)
@@ -206,7 +210,7 @@ int Search(char l[100])
 	max++;
 	return max;
 }
-	
+
 void Display()
 {
   int i;
@@ -225,4 +229,3 @@ int yywrap()
 {
   return (1);
 }
-
