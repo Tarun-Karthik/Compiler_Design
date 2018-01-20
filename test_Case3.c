@@ -3,15 +3,14 @@
 #include<ctype.h>
 #define X 10
 
-// first program ever!!!!
-
 void main()
 {
 	printf("\nHello World");
 	do
 	{
-		/* do something random
+		/* do something random /*
 			i said do something random
-				nevermind ...	*/
+				nevermind ...	
+			COMMENT ERROR  */
 	}while(1);
 }

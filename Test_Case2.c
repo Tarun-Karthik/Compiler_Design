@@ -2,17 +2,16 @@
 
 int func();
 
-int main(){	
-	int +p, a, q;
-	char c, *c;
+int main(){
+	$int interger;   //ERROR - Illegal Token	
+	int q;
+	char c;
 	float b;
 	
 	/*
-	Here is the 
-	multiline comment	
-	*/
-
-	q= func();     //Function	
+	Here is the
+	multiline comment ERROR	
+	*/	
 
 	printf("Give a(int) and b(float) values:\n");	
 
@@ -21,7 +20,7 @@ int main(){
 	
 	printf("q value= %d\n", q);
 
-	if(a = q){     //ERROR- comparision error, operator should be ==
+	if(a == q){   
 		printf("a is equal to q\n" );
 	}
 	else
@@ -29,7 +28,7 @@ int main(){
 		printf("a is not equal to q\n");
 	}
 	
-	while{ // ERROR- braces are missing here
+	while(a){
 		
 		while(b){
 			

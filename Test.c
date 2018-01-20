@@ -1,20 +1,16 @@
 #include<stdio.h>
-
 void func(){
 	//Single line comment
 }
-
 int main(){	
-	int *p, 00a, integer;
+	int integer;
 	char c;
 	float b;
 	
 	/*
-	Here is the/*
-	multiline comment error	
+	Here is the
+	multiline comment	
 	*/
-
-	func();     //Function	
 	
 	scanf("%d",&a );
 	scanf("%f",&b );
@@ -42,5 +38,4 @@ int main(){
 	}
 	
 	return 0;
-}
 }

@@ -68,7 +68,7 @@ Insert("preprocessor",yytext,Search(yytext));}
 
 {varchar} {printf("\nline number : %d : %s is a variable name\n",linecount,yytext);if(mcomment==0)Insert("identifier",yytext,Search(yytext));}
 
-{number} {printf("\nline number : %d : %s is a number\n",linecount,yytext);if(mcomment==0)Insert("Number",yytext,Search(yytext));}
+({number}*|{digit}*) {printf("\nline number : %d : %s is a number\n",linecount,yytext);if(mcomment==0)Insert("Number",yytext,Search(yytext));}
 
 {string} {printf("\nline number : %d : %s , is a string\n",linecount,yytext);if(mcomment==0)Insert("String",yytext,Search(yytext));}
 
@@ -152,7 +152,7 @@ struct SymbTab *first,*last;
 
 int main()
 {
-  yyin = fopen("Program.txt","r");
+  yyin = fopen("Test.c","r");
 
   FILE *file= fopen("Symbol_Table.txt", "w");
   yyout= file;
