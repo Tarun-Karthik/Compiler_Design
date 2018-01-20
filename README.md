@@ -9,3 +9,6 @@ In this project we plan to implement a lexical analyzer for C language. This lex
   - Functions with one parameter <br />
   - Identifiers <br />
   - Balanced expressions <br />
+  <br>
+For the full project report visit-
+  - [Project Report](https://docs.google.com/document/d/15WXhukKsBI8TztFOjP53m6waQRh4ATMvrF-npFcwVh8/edit?usp=sharing)
