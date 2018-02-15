@@ -1,0 +1,20 @@
+// test case 5
+// NO ERRORS
+
+#include<stdio.h>
+void main ()
+{
+	int x = -10 , y = '1' , z , a ;
+
+	for ( int i =0 ; i<10 ; ++i ) {
+				for ( int j = 0,k = 19; j < k ; j++,k--)
+					{
+				}
+		}	
+	for ( ; ; )
+	for ( ; ; );
+	while(1);
+	 
+} 
+
+int abc () { }
