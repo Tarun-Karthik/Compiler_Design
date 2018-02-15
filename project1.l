@@ -33,7 +33,8 @@ pointer "*"{varchar}
 array {varchar}"["{number}+"]"
 illegel "@"|"$"
 define #define
-
+negdigit -{digit}
+charlit '.+'
 
 %s comment
 %s function
@@ -42,6 +43,10 @@ define #define
 
 {space} {}
 {line} {  linecount++;  }
+
+{charlit} {int i,j,count=0; char* temp; char text[1000]; temp = yytext;  for(i=1;temp[i]!='\'';i++){} count = i-1; for(i=1,j=0;i<=count;i++,j++)text[j] = temp[i]; text[j]='\0'; printf("\nline number : %d : %s , is a string\n",linecount,text);if(mcomment==0)Insert("String",text,Search(text)); return CHARLIT;}
+
+{negdigit} {return NEGDIGIT;}
 
 "void" {if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext)); return VOID;}}
 

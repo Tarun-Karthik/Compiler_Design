@@ -25,9 +25,9 @@ int yylex(void);
 /* Decleration*/
 %token PREPROCESSOR HEADER KEYWORDS LINE SPACE COMMA LESS VOID S_ADD INT CHAR FLOAT FOR QUOT
 %token OPENBC CLOSEBC POINTER ARRAY DEFINE CCBRACE OCBRACE MAIN S_SUB VARCHAR PRINTF
-%token ASSIGNMENT PLUS MINUS MULTIPLY DIVIDE MODULO INCREMENT DECREMENT S_MUL
+%token ASSIGNMENT PLUS MINUS MULTIPLY DIVIDE MODULO INCREMENT DECREMENT S_MUL NEGDIGIT
 %token ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN WHILE RETURN S_DIV
-%token SEMICOLON IF ELSE LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL
+%token SEMICOLON IF ELSE LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL CHARLIT
 %left PLUS MINUS
 %left MULTIPLY DIVIDE
 
@@ -101,8 +101,14 @@ int yylex(void);
             ;
 
     print_statement
-            : PRINTF OCBRACE STRING CCBRACE SEMICOLON
-            |PRINTF OCBRACE STRING COMMA VARCHAR CCBRACE SEMICOLON
+            : PRINTF OCBRACE in_print CCBRACE SEMICOLON
+            ;
+    in_print
+            : STRING in_print_ext
+            ;
+    in_print_ext
+            :
+            | COMMA VARCHAR in_print_ext
             ;
 
     declaration_statement
@@ -111,10 +117,12 @@ int yylex(void);
 
    id_list
             : VARCHAR id_list_1
+            | assignment_statement id_list_1
             ;
   id_list_1
             : COMMA VARCHAR id_list_1
             |
+            | COMMA assignment_statement id_list_1
             ;
 
     function_call
@@ -131,27 +139,40 @@ int yylex(void);
             ;
 
    while_st
-            : WHILE OCBRACE conditions CCBRACE block_statement
+            : WHILE OCBRACE conditions CCBRACE while_st_ext
+            ;
+   while_st_ext
+            :
+            | block_statement
+            | SEMICOLON
             ;
 
    for_st
-            : FOR OCBRACE INT VARCHAR ASSIGNMENT DIGIT SEMICOLON conditions SEMICOLON _inc_decre CCBRACE block_statement
-            |for_woin
-            |for_wocon
-            |for_wodec
+            : FOR OCBRACE condition1 SEMICOLON condition2 SEMICOLON condition3 CCBRACE for_st_ext
+            ;
+  for_st_ext
+            :
+            | SEMICOLON
+            | block_statement
             ;
 
-  for_wodec
-            : FOR OCBRACE SEMICOLON conditions SEMICOLON _inc_decre CCBRACE block_statement
+  condition1
+            :
+            | declaration_statement
+            | assignment_statement
             ;
 
-  for_wocon
-            : FOR OCBRACE SEMICOLON SEMICOLON _inc_decre CCBRACE block_statement
+  condition2
+            :
+            |conditions
             ;
 
-  for_woin
-            : FOR OCBRACE INT VARCHAR SEMICOLON conditions SEMICOLON  CCBRACE block_statement
+  condition3
+            :
+            | _inc_decre condition3
+            | COMMA condition3
             ;
+
 
   _inc_decre
             :_inc
@@ -202,7 +223,9 @@ int yylex(void);
               ;
   int_expression
                 : DIGIT
+                | NEGDIGIT
                 | VARCHAR
+                | CHARLIT
                 | int_expression PLUS int_expression
                 | int_expression MINUS int_expression
                 | int_expression MULTIPLY int_expression
@@ -232,7 +255,7 @@ int yyerror(char *s) {
 
 int main()
 {
-  yyin = fopen("program2.txt","r");
+  yyin = fopen("program25.txt","r");
   FILE *file= fopen("Symbol_Table.txt", "w");
   yyout= file;
 
