@@ -102,6 +102,7 @@ int yylex(void);
 
     print_statement
             : PRINTF OCBRACE STRING CCBRACE SEMICOLON
+            |PRINTF OCBRACE STRING COMMA VARCHAR CCBRACE SEMICOLON
             ;
 
     declaration_statement
