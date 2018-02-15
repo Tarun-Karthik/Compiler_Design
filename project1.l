@@ -19,7 +19,7 @@ extern void yyerror(const char *);
 
 preprocessor #include
 header <[a-zA-Z]+\.h>
-keywords for|auto|break|case|const|continue|default|do|double|enum|extern|goto|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|printf|scanf|main
+keywords auto|break|case|const|continue|default|do|double|enum|extern|goto|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|printf|scanf|main
 line [\n]
 space [ ][\t]
 startc "/*"
@@ -60,6 +60,10 @@ define #define
 "else" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return ELSE;}}
 
 "return" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return RETURN;}}
+
+"printf"  { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return PRINTF;}}
+
+"for"  { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return FOR;}}
 
 {keywords} { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext)); }}
 
@@ -168,8 +172,3 @@ Insert("preprocessor",yytext,Search(yytext)); return PREPROCESSOR;}
 "}" {printf("\nline number : %d : close round brace %s\n",linecount,yytext);if(mcomment==0)Insert("Close_Paran",yytext,Search(yytext)); return CLOSEBC;}
 
 %%
-
-int yywrap(void)        /* called at end of input */
-{
-    return 1;           /* terminate now */
-}

@@ -3,7 +3,7 @@
       char *intval;
       char *floatval;
       char *stringval;
-      struct Symbol_Table *symp;
+      struct SymbTab *symp;
 }
 %{
 #include <stdio.h>
@@ -24,7 +24,7 @@ int yylex(void);
 
 /* Decleration*/
 %token PREPROCESSOR HEADER KEYWORDS LINE SPACE COMMA LESS VOID S_ADD INT CHAR FLOAT FOR QUOT
-%token OPENBC CLOSEBC POINTER ARRAY DEFINE CCBRACE OCBRACE MAIN S_SUB VARCHAR
+%token OPENBC CLOSEBC POINTER ARRAY DEFINE CCBRACE OCBRACE MAIN S_SUB VARCHAR PRINTF
 %token ASSIGNMENT PLUS MINUS MULTIPLY DIVIDE MODULO INCREMENT DECREMENT S_MUL
 %token ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN WHILE RETURN S_DIV
 %token SEMICOLON IF ELSE LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL
@@ -44,10 +44,13 @@ int yylex(void);
     program
             : program funcdef
             | funcdef
+            | pre_pro program
             ;
-
+    pre_pro
+            : PREPROCESSOR HEADER
+            ;
     funcdef
-            : VOID MAIN args block_statement      { printf("here\n");}
+            : VOID MAIN args block_statement
             | types VARCHAR args block_statement
             ;
 
@@ -77,7 +80,7 @@ int yylex(void);
             ;
 
     block_statement
-            : OPENBC statements CLOSEBC 
+            : OPENBC statements CLOSEBC
             ;
 
     statements
@@ -87,6 +90,7 @@ int yylex(void);
 
     statement
             : block_statement
+            | print_statement
             | conditional_statement
             | while_st
             | for_st
@@ -94,6 +98,10 @@ int yylex(void);
             | declaration_statement SEMICOLON
             | function_call SEMICOLON
             | ret_statement SEMICOLON
+            ;
+
+    print_statement
+            : PRINTF OCBRACE STRING CCBRACE SEMICOLON
             ;
 
     declaration_statement
@@ -126,10 +134,10 @@ int yylex(void);
             ;
 
    for_st
-            :for_woin
+            : FOR OCBRACE INT VARCHAR ASSIGNMENT DIGIT SEMICOLON conditions SEMICOLON _inc_decre CCBRACE block_statement
+            |for_woin
             |for_wocon
             |for_wodec
-            | FOR OCBRACE INT VARCHAR SEMICOLON conditions SEMICOLON _inc_decre CCBRACE block_statement
             ;
 
   for_wodec
@@ -217,7 +225,7 @@ int yylex(void);
 %%
 
 int yyerror(char *s) {
-    fprintf(stderr , "%s on line %i.\n", s, yylineno);
+    fprintf(stderr , "%s\n", s);
     exit(0);
 }
 
@@ -229,6 +237,7 @@ int main()
 
   yyparse();
   printf("\nProgram parsed successfully.\n");
+  Display();
   fclose(yyout);
   fclose(yyin);
 }
