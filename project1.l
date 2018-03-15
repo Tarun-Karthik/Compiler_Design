@@ -72,10 +72,9 @@ charlit '.+'
 
 {keywords} { if(mcomment==0){keywordcount++; }}
 
-{varchar} {yylval.str=strdup(yytext);return VARCHAR;}}
+{varchar} {yylval.str=strdup(yytext);return VARCHAR;}
 
-{define} {
-  }
+{define} { }
 
 {preprocessor} { return PREPROCESSOR;}
 

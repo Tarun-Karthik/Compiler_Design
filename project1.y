@@ -1,10 +1,4 @@
-%union{
 
-      char *intval;
-      char *floatval;
-      char *stringval;
-      struct SymbTab *symp;
-}
 %{
 #include <stdio.h>
 #include <math.h>
@@ -21,19 +15,28 @@ int yylineno;
 int yyerror(char *);
 int yylex(void);
 
-
-int i = 1;
-int j = 8;
+int g_addr = 100;
+int i=1;
+int j=8;
 int stack[100];
-int index1 = 0;
+int index1=0;
 int end[100];
 int arr[10];
-int gl1,gl2,ct=0,c=0,b=0;
+int gl1,gl2,ct=0,c=0,b;
 %}
+%type<ival> types
+%type<str> assignment assignment1 int_expression
+%token<ival> INT FLOAT VOID CHAR
+%token<str> VARCHAR DIGIT FDIGIT
+%token<str> STRING
+%union {
+		int ival;
+		char *str;
+}
 
 /* Decleration*/
-%token PREPROCESSOR HEADER KEYWORDS LINE SPACE COMMA LESS VOID S_ADD INT CHAR FLOAT FOR QUOT
-%token OPENBC CLOSEBC POINTER ARRAY DEFINE CCBRACE OCBRACE MAIN S_SUB VARCHAR PRINTF
+%token PREPROCESSOR HEADER KEYWORDS LINE  FUNCTION SPACE COMMA LESS S_ADD FOR QUOT
+%token OPENBC CLOSEBC POINTER ARRAY DEFINE CCBRACE OCBRACE MAIN S_SUB  PRINTF
 %token ASSIGNMENT PLUS MINUS MULTIPLY DIVIDE MODULO INCREMENT DECREMENT S_MUL NEGDIGIT
 %token ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN WHILE RETURN S_DIV
 %token SEMICOLON IF ELSE LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL CHARLIT OSBRACE CSBRACE
@@ -42,9 +45,7 @@ int gl1,gl2,ct=0,c=0,b=0;
 
 
 
-%token <intval> DIGIT
-%token <floatval> FDIGIT
-%token <stringval> STRING
+
 
 
 %%
@@ -74,7 +75,7 @@ int gl1,gl2,ct=0,c=0,b=0;
 		                  insert($2,$1,g_addr);
 		                  g_addr+=4;
 	               }
-	            }
+	    }
             ;
 
 
@@ -180,7 +181,7 @@ int gl1,gl2,ct=0,c=0,b=0;
         						insert($2,$1,g_addr);
         						g_addr+=4;
         					}
-        	   | VARCHAR OSBRACE assignment1 CSBRACE SEMICOLON
+       	     | VARCHAR OSBRACE assignment1 CSBRACE SEMICOLON
             ;
 
 
@@ -212,7 +213,6 @@ assignment1 : VARCHAR ASSIGNMENT assignment1
 					         if(lookup($1))
 						             printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
 				      }
-	          | assignment2
 	          | int_expression COMMA assignment1
 	          | VARCHAR
                   {
@@ -221,55 +221,6 @@ assignment1 : VARCHAR ASSIGNMENT assignment1
 		              }
 	          | int_expression
 	          ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
    id_list
@@ -386,15 +337,11 @@ assignment1 : VARCHAR ASSIGNMENT assignment1
               ;
   int_expression
                 : DIGIT
-                | NEGDIGIT
                 | VARCHAR
-                | CHARLIT
-
                 | int_expression PLUS int_expression
                 | int_expression MINUS int_expression
                 | int_expression MULTIPLY int_expression
                 | int_expression DIVIDE int_expression
-                | OCBRACE int_expression CCBRACE
                 ;
 
   char_expression
@@ -426,15 +373,15 @@ int printline()
  {
   stack[index1] = i;
   i++;
-  index11++;
+  index1++;
   return;
  }
 
  void close1()
  {
   index1--;
-  end[stack[index]]=1;
-  stack[index]=0;
+  end[stack[index1]]=1;
+  stack[index1]=0;
   return;
  }
 
