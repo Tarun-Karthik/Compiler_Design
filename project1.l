@@ -44,81 +44,79 @@ charlit '.+'
 {space} {}
 {line} {  linecount++;  }
 
-{charlit} {int i,j,count=0; char* temp; char text[1000]; temp = yytext;  for(i=1;temp[i]!='\'';i++){} count = i-1; for(i=1,j=0;i<=count;i++,j++)text[j] = temp[i]; text[j]='\0'; printf("\nline number : %d : %s , is a string\n",linecount,text);if(mcomment==0)Insert("String",text,Search(text)); return CHARLIT;}
+{charlit} {yylval.str=strdup(yytext);int i,j,count=0; return CHARLIT;}
 
-{negdigit} {return NEGDIGIT;}
+{negdigit} {yylval.str=strdup(yytext);return NEGDIGIT;}
 
-"void" {if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext)); return VOID;}}
+"void" {if(mcomment==0){yylval.ival = VOID;keywordcount++; return VOID;}}
 
-"main" {if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext)); return MAIN;}}
+"main" {if(mcomment==0){keywordcount++; return MAIN;}}
 
-"int" {if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext)); return INT;}}
+"int" {if(mcomment==0){yylval.ival = INT;keywordcount++;  return INT;}}
 
-"float" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext)); return FLOAT;}}
+"float" { if(mcomment==0){yylval.ival = FLOAT;keywordcount++;  return FLOAT;}}
 
-"char" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return CHAR;}}
+"char" { if(mcomment==0){yylval.ival = CHAR;keywordcount++; return CHAR;}}
 
-"if" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return IF;}}
+"if" { if(mcomment==0){keywordcount++; return IF;}}
 
-"while" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return WHILE;}}
+"while" { if(mcomment==0){keywordcount++; return WHILE;}}
 
-"else" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return ELSE;}}
+"else" { if(mcomment==0){keywordcount++; return ELSE;}}
 
-"return" { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return RETURN;}}
+"return" { if(mcomment==0){keywordcount++; return RETURN;}}
 
-"printf"  { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return PRINTF;}}
+"printf"  { if(mcomment==0){keywordcount++; return PRINTF;}}
 
-"for"  { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext));return FOR;}}
+"for"  { if(mcomment==0){keywordcount++; return FOR;}}
 
-{keywords} { if(mcomment==0){keywordcount++; printf("\nline number : %d : C Keyword(%d) : %s\n",linecount,keywordcount,yytext);    Insert("keywords",yytext,Search(yytext)); }}
+{keywords} { if(mcomment==0){keywordcount++; }}
 
-{varchar} { if(mcomment==0){ printf("\nline number : %d : %s is a variable name\n",linecount,yytext); Insert("identifier",yytext,Search(yytext)); return VARCHAR;}}
+{varchar} {yylval.str=strdup(yytext);return VARCHAR;}}
 
-{define} {printf("\nline number : %d : %s is a definition\n",linecount,yytext);if(mcomment==0)
-Insert("definition",yytext,Search(yytext));
+{define} {
   }
 
-{preprocessor} {printf("\nline number : %d : %s is a preprocessor\n",linecount,yytext);if(mcomment==0)
-Insert("preprocessor",yytext,Search(yytext)); return PREPROCESSOR;}
+{preprocessor} { return PREPROCESSOR;}
 
-[int|float|char|void]+[ ]+[a-zA-Z_][a-zA-Z0-9_]*[(]{1}[int|float|char]*[ ]*[a-zA-Z_]*[a-zA-Z0-9_]*[)]{1} {BEGIN 0; printf("\nline number : %d : %s : is a function \n",linecount,yytext); }
+[int|float|char|void]+[ ]+[a-zA-Z_][a-zA-Z0-9_]*[(]{1}[int|float|char]*[ ]*[a-zA-Z_]*[a-zA-Z0-9_]*[)]{1} {BEGIN 0;  }
 
-{header} {printf("\nline number : %d : %s is a header\n",linecount,yytext);if(mcomment==0)Insert("header",yytext,Search(yytext)); return HEADER;}
+{header} { return HEADER;}
 
 {invalidid} {if(mcomment==0)printf("\nERROR 1 : Line number %d : Invalid Identifier  :%s",linecount,yytext);}
 
-[/]{1}[/]{1}.* {   printf("\nline number : %d : %s : is a comment\n",linecount,yytext);  }
+[/]{1}[/]{1}.* {   }
 
-{startc} 	{BEGIN comment; if(mcomment==0){printf("\nmultiline comment starts at line %d\n",linecount); mcomment = 1;}else{printf("\nERROR 2 : Line number %d : Comment Error  ",linecount);}}
+{startc} 	{BEGIN comment; if(mcomment==0){ mcomment = 1;}else{printf("\nERROR 2 : Line number %d : Comment Error  ",linecount);}}
 <comment>\n	{BEGIN comment;  linecount++;}
 <comment>[a-zA-Z0-9 ]* ;
-<comment>{endc}	{BEGIN 0; if(mcomment == 1)printf("\nmultiline comment end at line %d\n",linecount); mcomment = 0;}
+<comment>{endc}	{BEGIN 0;  mcomment = 0;}
 
 
 {illegel} {if(mcomment==0){printf("\nERROR : Line number %d : Illegel Token  :%s",linecount,yytext);}}
 
 
-{pointer} {printf("\nline number : %d : %s is a (pointer) variable name\n",linecount,yytext);if(mcomment==0)Insert("identifier",yytext,Search(yytext));}
+{pointer} {yylval.str=strdup(yytext);}
 
-{array} {printf("\nline number : %d : %s is a (array) variable name\n",linecount,yytext);if(mcomment==0)Insert("identifier",yytext,Search(yytext));}
+{array} {yylval.str=strdup(yytext);}
 
-{number} {if(mcomment==0){ printf("\nline number : %d : %s is a floating point \n",linecount,yytext); Insert("identifier",yytext,Search(yytext)); yylval.floatval = strtol(yytext, 0, 10);
+{number} {if(mcomment==0){yylval.str=strdup(yytext);
          return FDIGIT;}}
 
-{digit} { if(mcomment==0){ printf("\nline number : %d : %s is a integer \n",linecount,yytext); Insert("identifier",yytext,Search(yytext)); yylval.intval = strtol(yytext, 0, 10);
+{digit} { if(mcomment==0){yylval.str=strdup(yytext);
          return DIGIT;}}
 
-{string} {int i,j,count=0; char* temp; char text[1000]; temp = yytext;  for(i=1;temp[i]!='\"';i++){} count = i-1; for(i=1,j=0;i<=count;i++,j++)text[j] = temp[i]; text[j]='\0'; printf("\nline number : %d : %s , is a string\n",linecount,text);if(mcomment==0)Insert("String",text,Search(text)); return STRING;}
+{string} {yylval.str=strdup(yytext); return STRING;}
 
-"=" {printf("\nline number : %d : equal to operator %s\n",linecount,yytext);if(mcomment==0)Insert("Assignment",yytext,Search(yytext)); return ASSIGNMENT;}
+"=" { return ASSIGNMENT;}
 
-"+" { printf("\nline number : %d : addition operator %s\n",linecount,yytext);if(mcomment==0)Insert("Add",yytext,Search(yytext));return PLUS;}
+"+" {return PLUS;}
 
-"-" {printf("\nline number : %d : subtraction operator %s\n",linecount,yytext);if(mcomment==0)Insert("Subtract",yytext,Search(yytext)); return MINUS;}
+"-" { return MINUS;}
 
-"*" {printf("\nline number : %d : multiplication operator %s\n",linecount,yytext);if(mcomment==0)Insert("Multiply",yytext,Search(yytext)); return MULTIPLY;}
+"*" {return MULTIPLY;}
 
-"/" {printf("\nline number : %d : division operator %s\n",linecount,yytext);if(mcomment==0)Insert("Divide",yytext,Search(yytext)); return DIVIDE;}
+"/" { return DIVIDE;}
 
 "%" {printf("\nline number : %d : modulo operator %s\n",linecount,yytext);if(mcomment==0)Insert("Modulo",yytext,Search(yytext));}
 
@@ -172,8 +170,12 @@ Insert("preprocessor",yytext,Search(yytext)); return PREPROCESSOR;}
 
 "'"  {printf("\nline number : %d : single Quot %s\n",linecount,yytext);if(mcomment==0)Insert("Single_quot",yytext,Search(yytext)); return QUOT;}
 
-"{" {printf("\nline number : %d : open round brace %s\n",linecount,yytext);if(mcomment==0)Insert("Open_Paran",yytext,Search(yytext)); return OPENBC;}
+"{" { open1();printf("\nline number : %d : open round brace %s\n",linecount,yytext);if(mcomment==0)Insert("Open_Paran",yytext,Search(yytext)); return OPENBC;}
 
-"}" {printf("\nline number : %d : close round brace %s\n",linecount,yytext);if(mcomment==0)Insert("Close_Paran",yytext,Search(yytext)); return CLOSEBC;}
+"}" {close1();printf("\nline number : %d : close round brace %s\n",linecount,yytext);if(mcomment==0)Insert("Close_Paran",yytext,Search(yytext)); return CLOSEBC;}
+
+"[" {printf("\nline number : %d : open square brace %s\n",linecount,yytext);if(mcomment==0)Insert("Open_Paran",yytext,Search(yytext)); return OSBRACE;}
+
+"]" {printf("\nline number : %d : close square brace %s\n",linecount,yytext);if(mcomment==0)Insert("Close_Paran",yytext,Search(yytext)); return CSBRACE;}
 
 %%
