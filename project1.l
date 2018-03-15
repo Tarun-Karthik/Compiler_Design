@@ -42,15 +42,12 @@ charlit '.+'
 %%
 
 {space} {}
-{line} {  linecount++;  }
 
-{charlit} {yylval.str=strdup(yytext);int i,j,count=0; return CHARLIT;}
 
-{negdigit} {yylval.str=strdup(yytext);return NEGDIGIT;}
 
 "void" {if(mcomment==0){yylval.ival = VOID;keywordcount++; return VOID;}}
 
-"main" {if(mcomment==0){keywordcount++; return MAIN;}}
+
 
 "int" {if(mcomment==0){yylval.ival = INT;keywordcount++;  return INT;}}
 
@@ -91,6 +88,7 @@ charlit '.+'
 <comment>[a-zA-Z0-9 ]* ;
 <comment>{endc}	{BEGIN 0;  mcomment = 0;}
 
+{line} {  linecount++;  }
 
 {illegel} {if(mcomment==0){printf("\nERROR : Line number %d : Illegel Token  :%s",linecount,yytext);}}
 

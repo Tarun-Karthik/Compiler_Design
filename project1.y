@@ -52,9 +52,9 @@ int gl1,gl2,ct=0,c=0,b;
     /* Rules*/
 
     program
-            : program funcdef
-            | funcdef
+            : funcdef program
             | pre_pro program
+	    | 
             ;
     pre_pro
             : PREPROCESSOR HEADER
@@ -206,19 +206,19 @@ assignment1 : VARCHAR ASSIGNMENT assignment1
 			                        if((scope<=currscope && end[scope]==0) && !(scope==0))
 				                            check_scope_update($1,$3,currscope);
 		                       }
-              }
+             	 }
 
 	          | VARCHAR COMMA assignment1
-              {
-					         if(lookup($1))
-						             printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-				      }
+              		{
+				if(lookup($1))
+			           printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+	                }
 	          | int_expression COMMA assignment1
 	          | VARCHAR
                   {
  		               if(lookup($1))
 			                printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-		              }
+                  }
 	          | int_expression
 	          ;
 
@@ -387,13 +387,11 @@ int printline()
 
 int main()
 {
-  yyin = fopen("program25.txt","r");
-  FILE *file= fopen("Symbol_Table.txt", "w");
-  yyout= file;
-
+  yyin = fopen("Program.txt","r");
   yyparse();
   printf("\nProgram parsed successfully.\n");
-  Display();
-  fclose(yyout);
+  //Display();
+  printf("Parsing done\n");
+  print();
   fclose(yyin);
 }
