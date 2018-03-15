@@ -117,64 +117,64 @@ charlit '.+'
 
 "/" { return DIVIDE;}
 
-"%" {printf("\nline number : %d : modulo operator %s\n",linecount,yytext);if(mcomment==0)Insert("Modulo",yytext,Search(yytext));}
+"%" {}
 
-"++" {printf("\nline number : %d : increment operator %s\n",linecount,yytext);if(mcomment==0)Insert("Increment",yytext,Search(yytext)); return INCREMENT;}
+"++" { return INCREMENT;}
 
-"--" {printf("\nline number : %d : decrement operator %s\n",linecount,yytext);if(mcomment==0)Insert("Decrement",yytext,Search(yytext)); return DECREMENT;}
+"--" { return DECREMENT;}
 
-"+=" {printf("\nline number : %d : add & assign operator %s\n",linecount,yytext);if(mcomment==0)Insert("Add_Assign",yytext,Search(yytext)); return S_ADD;}
+"+=" { return S_ADD;}
 
-"-=" {printf("\nline number : %d : subtract & assign operator %s\n",linecount,yytext);if(mcomment==0)Insert("Sub_Assign",yytext,Search(yytext)); return S_SUB;}
+"-=" { return S_SUB;}
 
-"*=" {printf("\nline number : %d : multiply & assign operator %s\n",linecount,yytext);if(mcomment==0)Insert("Mult_Assign",yytext,Search(yytext)); return S_MUL;}
+"*=" { return S_MUL;}
 
-"/=" {printf("\nline number : %d : divide & assign operator %s\n",linecount,yytext);if(mcomment==0)Insert("Div_Assign",yytext,Search(yytext)); return S_DIV;}
+"/=" { return S_DIV;}
 
-"==" {printf("\nline number : %d : equal to operator %s\n",linecount,yytext);if(mcomment==0)Insert("Equal",yytext,Search(yytext)); return EQUAL;}
+"==" {return EQUAL;}
 
-"%=" {printf("\nline number : %d : modulo & assign to operator %s\n",linecount,yytext);if(mcomment==0)Insert("Mod_Assign",yytext,Search(yytext));}
+"%=" {}
 
-">=" {printf("\nline number : %d : greater than or equal to operator %s\n",linecount,yytext);if(mcomment==0)Insert("Greater_Eq",yytext,Search(yytext)); return MORE_EQUAL;}
+">=" {return MORE_EQUAL;}
 
-"<=" {printf("\nline number : %d : less than or equal to operator %s\n",linecount,yytext);if(mcomment==0)Insert("Less_Eq",yytext,Search(yytext)); return LESS_EQUAL;}
+"<=" { return LESS_EQUAL;}
 
-"!=" {printf("\nline number : %d : not equal to operator %s\n",linecount,yytext);if(mcomment==0)Insert("Not_Eq",yytext,Search(yytext)); return NOT_EQUAL;}
+"!=" { return NOT_EQUAL;}
 
-">"  {printf("\nline number : %d : greater than operator %s\n",linecount,yytext);if(mcomment==0)Insert("Great",yytext,Search(yytext)); return MORE;}
+">"  { return MORE;}
 
-"<"  {printf("\nline number : %d : less than operator %s\n",linecount,yytext);if(mcomment==0)Insert("Less",yytext,Search(yytext)); return LESS;}
+"<"  { return LESS;}
 
-"?"  {printf("\nline number : %d : conditional operator %s\n",linecount,yytext);if(mcomment==0)Insert("Condition",yytext,Search(yytext));}
+"?"  {}
 
-"&"  {printf("\nline number : %d : bit wise AND operator %s\n",linecount,yytext);if(mcomment==0)Insert("Reference/Bit_And",yytext,Search(yytext));}
+"&"  {}
 
-"|"  {printf("\nline number : %d : bit wise OR operator %s\n",linecount,yytext);if(mcomment==0)Insert("Bit_Or",yytext,Search(yytext));}
+"|"  {}
 
-"&&" {printf("\nline number : %d : AND operator %s\n",linecount,yytext);if(mcomment==0)Insert("Logic_And",yytext,Search(yytext));}
+"&&" {}
 
-"||" {printf("\nline number : %d : OR operator %s\n",linecount,yytext);if(mcomment==0)Insert("Logic_Or",yytext,Search(yytext));}
+"||" {}
 
-"!"  {printf("\nline number : %d : NOT operator %s\n",linecount,yytext);if(mcomment==0)Insert("Negate",yytext,Search(yytext));}
+"!"  {}
 
-":"  {printf("\nline number : %d : Colon %s\n",linecount,yytext);if(mcomment==0)Insert("Colon",yytext,Search(yytext));}
+":"  {}
 
-";"  {printf("\nline number : %d : semi colon %s\n",linecount,yytext);if(mcomment==0)Insert("SemiColon",yytext,Search(yytext)); return SEMICOLON;}
+";"  { return SEMICOLON;}
 
-","  {printf("\nline number : %d : comma %s\n",linecount,yytext);if(mcomment==0)Insert("Coma",yytext,Search(yytext)); return COMMA;}
+","  { return COMMA;}
 
-"("  {printf("\nline number : %d : open curly brace %s\n",linecount,yytext);if(mcomment==0)Insert("Open_Brace",yytext,Search(yytext)); return OCBRACE;}
+"("  { return OCBRACE;}
 
-")"  {printf("\nline number : %d : closing curly brace %s\n",linecount,yytext);if(mcomment==0)Insert("Close_Brase",yytext,Search(yytext)); return CCBRACE;}
+")"  { return CCBRACE;}
 
-"'"  {printf("\nline number : %d : single Quot %s\n",linecount,yytext);if(mcomment==0)Insert("Single_quot",yytext,Search(yytext)); return QUOT;}
+"'"  { return QUOT;}
 
-"{" { open1();printf("\nline number : %d : open round brace %s\n",linecount,yytext);if(mcomment==0)Insert("Open_Paran",yytext,Search(yytext)); return OPENBC;}
+"{" { open1(); return OPENBC;}
 
-"}" {close1();printf("\nline number : %d : close round brace %s\n",linecount,yytext);if(mcomment==0)Insert("Close_Paran",yytext,Search(yytext)); return CLOSEBC;}
+"}" {close1(); return CLOSEBC;}
 
-"[" {printf("\nline number : %d : open square brace %s\n",linecount,yytext);if(mcomment==0)Insert("Open_Paran",yytext,Search(yytext)); return OSBRACE;}
+"[" { return OSBRACE;}
 
-"]" {printf("\nline number : %d : close square brace %s\n",linecount,yytext);if(mcomment==0)Insert("Close_Paran",yytext,Search(yytext)); return CSBRACE;}
+"]" { return CSBRACE;}
 
 %%
