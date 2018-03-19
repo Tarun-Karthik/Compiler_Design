@@ -1,33 +1,24 @@
 %{
-#include<stdio.h>
-#include <math.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include "y.tab.h"
 int keywordcount = 0;
 int linecount = 1;
 int mcomment = 0;
 #define SIZE 100
 
-extern void yyerror(const char *);
 
 %}
 
-preprocessor #include
+preprocessor ^#include
 header <[a-zA-Z]+\.h>
-keywords auto|break|case|const|continue|default|do|double|enum|extern|goto|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|printf|scanf|main
+keywords auto|break|case|const|continue|default|do|double|enum|extern|goto|long|register|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|printf|scanf
 line [\n]
-space [ ][\t]
+space [ \t]
 startc "/*"
 endc "*/"
+alpha [A-Za-z]
 varchar [a-zA-Z_][a-zA-Z0-9_]*
 number [0-9]*"."[0-9]*
 string \".+\"
-digit [0-9]*
+digit [0-9]
 invalidid {digit}+[_a-zA-Z]+[_a-zA-Z0-9]*
 pointer "*"{varchar}
 array {varchar}"["{number}+"]"
@@ -41,15 +32,25 @@ charlit '.+'
 
 %%
 
-{space} {}
+[ \t] ;
 
+\n {  linecount++;  }
 
+{preprocessor} { return PREPROCESSOR;}
 
-"void" {if(mcomment==0){yylval.ival = VOID;keywordcount++; return VOID;}}
+{header} { return HEADER;}
 
+"{" { open1(); return OPENBC;}
 
+"}" { close1(); return CLOSEBC;}
 
-"int" {if(mcomment==0){yylval.ival = INT;keywordcount++;  return INT;}}
+"(" {return '(';}
+
+")" {return ')';}
+
+void {yylval.ival = VOID;keywordcount++; return VOID;}
+
+int {yylval.ival = INT;keywordcount++;  return INT;}
 
 "float" { if(mcomment==0){yylval.ival = FLOAT;keywordcount++;  return FLOAT;}}
 
@@ -69,26 +70,19 @@ charlit '.+'
 
 {keywords} { if(mcomment==0){keywordcount++; }}
 
-{varchar} {yylval.str=strdup(yytext);return VARCHAR;}
+{alpha}({alpha}|{digit})* {yylval.str=strdup(yytext);return VARCHAR;}
 
-{define} { }
+{digit}+ { yylval.str=strdup(yytext);return DIGIT;}
 
-{preprocessor} { return PREPROCESSOR;}
+{digit}+\.{digit}+ {yylval.str=strdup(yytext);return FDIGIT;}
 
-[int|float|char|void]+[ ]+[a-zA-Z_][a-zA-Z0-9_]*[(]{1}[int|float|char]*[ ]*[a-zA-Z_]*[a-zA-Z0-9_]*[)]{1} {BEGIN 0;  }
-
-{header} { return HEADER;}
+{define} ;
 
 {invalidid} {if(mcomment==0)printf("\nERROR 1 : Line number %d : Invalid Identifier  :%s",linecount,yytext);}
 
-[/]{1}[/]{1}.* {   }
 
-{startc} 	{BEGIN comment; if(mcomment==0){ mcomment = 1;}else{printf("\nERROR 2 : Line number %d : Comment Error  ",linecount);}}
-<comment>\n	{BEGIN comment;  linecount++;}
-<comment>[a-zA-Z0-9 ]* ;
-<comment>{endc}	{BEGIN 0;  mcomment = 0;}
 
-{line} {  linecount++;  }
+
 
 {illegel} {if(mcomment==0){printf("\nERROR : Line number %d : Illegel Token  :%s",linecount,yytext);}}
 
@@ -97,13 +91,6 @@ charlit '.+'
 
 {array} {yylval.str=strdup(yytext);}
 
-{number} {if(mcomment==0){yylval.str=strdup(yytext);
-         return FDIGIT;}}
-
-{digit} { if(mcomment==0){yylval.str=strdup(yytext);
-         return DIGIT;}}
-
-{string} {yylval.str=strdup(yytext); return STRING;}
 
 "=" { return ASSIGNMENT;}
 
@@ -115,7 +102,7 @@ charlit '.+'
 
 "/" { return DIVIDE;}
 
-"%" {}
+"%" ;
 
 "++" { return INCREMENT;}
 
@@ -131,7 +118,7 @@ charlit '.+'
 
 "==" {return EQUAL;}
 
-"%=" {}
+"%=" ;
 
 ">=" {return MORE_EQUAL;}
 
@@ -143,36 +130,37 @@ charlit '.+'
 
 "<"  { return LESS;}
 
-"?"  {}
+"?"  ;
 
-"&"  {}
+"&"  ;
 
-"|"  {}
+"|"  ;
 
-"&&" {}
+"&&" ;
 
-"||" {}
+"||" ;
 
-"!"  {}
+"!"  ;
 
-":"  {}
+":"  ;
 
 ";"  { return SEMICOLON;}
 
 ","  { return COMMA;}
 
-"("  { return OCBRACE;}
-
-")"  { return CCBRACE;}
-
 "'"  { return QUOT;}
-
-"{" { open1(); return OPENBC;}
-
-"}" {close1(); return CLOSEBC;}
 
 "[" { return OSBRACE;}
 
 "]" { return CSBRACE;}
+
+\/\/.* ;
+
+\/\*(.*\n)*.*\*\/ ;
+
+\".*\"	return STRING;
+
+.	return yytext[0];
+
 
 %%
