@@ -138,88 +138,108 @@ int gl1,gl2,ct=0,c=0,b;
             | COMMA VARCHAR in_print_ext
             ;
 
-	Declaration
-						: types VARCHAR ASSIGNMENT consttype SEMICOLON
+Declaration : types VARCHAR ASSIGNMENT consttype
+						{
+							if( (!(strspn($4,"0123456789")==strlen($4))) && $1==258)
+								printf("\nError : Type Mismatch : Line %d\n",printline());
+							if(!lookup($2))
 							{
-								if( (!(strspn($4,"0123456789")==strlen($4))) && $1==258)
-									printf("\nError : Type Mismatch : Line %d\n",printline());
-									if(!lookup($2))
-									{
-										int currscope=stack[index1-1];
-										int previous_scope=returnscope($2,currscope);
-										if(currscope==previous_scope)
-											printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
-										else
-										{
-											insert_dup($2,$1,g_addr,currscope);
-											check_scope_update($2,$4,stack[index1-1]);
-											g_addr+=4;
-										}
-									}
-									else
-									{
-										int scope=stack[index1-1];
-										insert($2,$1,g_addr);
-										insertscope($2,scope);
-										check_scope_update($2,$4,stack[index1-1]);
-										g_addr+=4;
-									}
-				     }
-			 		  | types assignment1 SEMICOLON  {
-						 	if(!lookup($1))
-						 	{
-						 		int currscope=stack[index1-1];
-						 		int scope=returnscope($1,currscope);
-						 		if(!(scope<=currscope && end[scope]==0) || scope==0)
-									printf("\nError : Variable %s out of scope : Line %d\n",$1,printline());
+								int currscope=stack[index1-1];
+								int previous_scope=returnscope($2,currscope);
+								if(currscope==previous_scope)
+									printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
+								else
+								{
+									insert_dup($2,$1,g_addr,currscope);
+									check_scope_update($2,$4,stack[index1-1]);
+									g_addr+=4;
+								}
 							}
 							else
-								printf("\nError : Undeclared Variable %s : Line %d\n",$1,printline());
-						}
-
-						| types VARCHAR '[' assignment ']' SEMICOLON
 							{
-							insert($2,ARRAY,g_addr);
-							insert($2,$1,g_addr);
-							g_addr+=4;
+								int scope=stack[index1-1];
+								insert($2,$1,g_addr);
+								insertscope($2,scope);
+								check_scope_update($2,$4,stack[index1-1]);
+								g_addr+=4;
 							}
-			   		| VARCHAR '[' assignment1 ']' SEMICOLON
+						}
+						| types VARCHAR
+						{
+						if(!lookup($2))
+						{
+							int currscope=stack[index1-1];
+							int previous_scope=returnscope($2,currscope);
+							if(currscope==previous_scope)
+								printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
+							else
+							{
+								insert_dup($2,$1,g_addr,currscope);
+								g_addr+=4;
+							}
+						}
+						else
+						{
+							int scope=stack[index1-1];
+							insert($2,$1,g_addr);
+							insertscope($2,scope);
+							g_addr+=4;
+						}
+						}
+						| assignment1   {
+									if(!lookup($1))
+									{
+										int currscope=stack[index1-1];
+										int scope=returnscope($1,currscope);
+										if(!(scope<=currscope && end[scope]==0) || scope==0)
+											printf("\nError : Variable %s out of scope : Line %d\n",$1,printline());
+									}
+									else
+										printf("\nError : Undeclared Variable %s : Line %d\n",$1,printline());
+									}
+
+						| types VARCHAR '[' assignment ']' SEMICOLON {
+											insert($2,ARRAY,g_addr);
+											insert($2,$1,g_addr);
+											g_addr+=4;
+										}
+						| VARCHAR '[' assignment1 ']'
 						;
 
 	assignment : VARCHAR ASSIGNMENT consttype
-						 | VARCHAR PLUS assignment
-						 | VARCHAR COMMA assignment
-						 | consttype COMMA assignment
-						 | VARCHAR
-						 | consttype
-						 ;
+							| VARCHAR PLUS assignment
+							| VARCHAR COMMA assignment
+							| consttype COMMA assignment
+							| VARCHAR
+							| consttype
+							;
 
-assignment1 : VARCHAR ASSIGNMENT assignment1
-	{
-		int sct=returnscope($1,stack[index1-1]);
-		int type=returntype($1,sct);
-		if((!(strspn($3,"0123456789")==strlen($3))) && type==258)
-			printf("\nError : Type Mismatch : Line %d\n",printline());
-		if(!lookup($1))
-		{
-			int currscope=stack[index1-1];
-			int scope=returnscope($1,currscope);
-			if((scope<=currscope && end[scope]==0) && !(scope==0))
-				check_scope_update($1,$3,currscope);
-		}
-		}
+	assignment1 : VARCHAR ASSIGNMENT assignment1
+							{
+								int sct=returnscope($1,stack[index1-1]);
+								int type=returntype($1,sct);
+								if((!(strspn($3,"0123456789")==strlen($3))) && type==258)
+									printf("\nError : Type Mismatch : Line %d\n",printline());
+								if(!lookup($1))
+								{
+									int currscope=stack[index1-1];
+									int scope=returnscope($1,currscope);
+									if((scope<=currscope && end[scope]==0) && !(scope==0))
+										check_scope_update($1,$3,currscope);
+								}
+								}
 
-	| VARCHAR COMMA assignment1    {
-					if(lookup($1))
-						printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-				}
-	| consttype COMMA assignment1
-	| VARCHAR  {
-		if(lookup($1))
-			printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-		}
-	| consttype
-	;
+							| VARCHAR COMMA assignment1    {
+											if(lookup($1))
+												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+										}
+							| consttype COMMA assignment1
+							| VARCHAR  {
+								if(lookup($1))
+									printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+								}
+							| consttype
+							;
 
 	consttype : DIGIT
 	| FDIGIT
@@ -328,13 +348,13 @@ assignment1 : VARCHAR ASSIGNMENT assignment1
               ;
 
   ret_statement
-              : RETURN consttype {
+              : RETURN consttype  {
                 if(!(strspn($2,"0123456789")==strlen($2)))
 						          storereturn(ct,FLOAT);
 					      else
 						          storereturn(ct,INT); ct++;
               }
-              | RETURN SEMICOLON {storereturn(ct,VOID); ct++;}
+              | RETURN  {storereturn(ct,VOID); ct++;}
               ;
 
   char_expression
