@@ -18,17 +18,11 @@ int arr[10];
 int gl1,gl2,ct=0,c=0,b;
 %}
 
-<<<<<<< HEAD
+
 %token<ival> INT FLOAT VOID CHAR ARRAY FUNCTION
 %token<str> VARCHAR DIGIT FDIGIT
 %token PREPROCESSOR HEADER KEYWORDS  SPACE COMMA LESS S_ADD FOR QUOT
 %token OPENBC CLOSEBC POINTER  DEFINE   S_SUB  PRINTF
-=======
-%token<ival> INT FLOAT VOID CHAR FUNCTION
-%token<str> VARCHAR DIGIT FDIGIT
-%token PREPROCESSOR HEADER KEYWORDS LINE SPACE COMMA LESS S_ADD FOR QUOT
-%token OPENBC CLOSEBC POINTER DEFINE ARRAY  S_SUB  PRINTF
->>>>>>> 853146e7aa0e0f04b5fc1f9bfe32e4c57d9f595e
 %token MODULO INCREMENT DECREMENT S_MUL NEGDIGIT STRING
 %token ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN WHILE RETURN S_DIV
 %token SEMICOLON IF ELSE LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL CHARLIT OSBRACE CSBRACE
@@ -230,17 +224,10 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 										printf("\nError : Undeclared Variable %s : Line %d\n",$1,printline());
 									}
 
-<<<<<<< HEAD
+
 
 						| VARCHAR OSBRACE assignment1 CSBRACE SEMICOLON
-=======
-						| types VARCHAR OSBRACE assignment CSBRACE {
-											insert($2,ARRAY,g_addr);
-											insert($2,$1,g_addr);
-											g_addr+=4;
-										}
-						| VARCHAR OSBRACE assignment1 CSBRACE	
->>>>>>> 853146e7aa0e0f04b5fc1f9bfe32e4c57d9f595e
+
 						;
 
 	assignment : VARCHAR ASSIGNMENT consttype
