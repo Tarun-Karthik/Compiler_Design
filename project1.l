@@ -21,7 +21,7 @@ string \".+\"
 digit [0-9]
 invalidid {digit}+[_a-zA-Z]+[_a-zA-Z0-9]*
 pointer "*"{varchar}
-array {varchar}"["{number}+"]"
+array {varchar}"["{digit}+"]"
 illegel "@"|"$"
 define #define
 negdigit -{digit}
@@ -44,9 +44,9 @@ charlit '.+'
 
 "}" { close1(); return CLOSEBC;}
 
-"(" {return '(';}
+"[" { return OSBRACE;}
 
-")" {return ')';}
+"]" { return CSBRACE;}
 
 void {yylval.ival = VOID;keywordcount++; return VOID;}
 
@@ -88,9 +88,6 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 
 
 {pointer} {yylval.str=strdup(yytext);}
-
-{array} {yylval.str=strdup(yytext);}
-
 
 "=" { return ASSIGNMENT;}
 
@@ -150,9 +147,7 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 
 "'"  { return QUOT;}
 
-"[" { return OSBRACE;}
 
-"]" { return CSBRACE;}
 
 \/\/.* ;
 
