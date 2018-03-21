@@ -21,7 +21,7 @@ string \".+\"
 digit [0-9]
 invalidid {digit}+[_a-zA-Z]+[_a-zA-Z0-9]*
 pointer "*"{varchar}
-array {varchar}"["{number}+"]"
+array {varchar}"["{digit}+"]"
 illegel "@"|"$"
 define #define
 negdigit -{digit}
@@ -89,7 +89,7 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 
 {pointer} {yylval.str=strdup(yytext);}
 
-{array} {yylval.str=strdup(yytext);}
+{array} {yylval.str=strdup(yytext); return ARRAY;}
 
 
 "=" { return ASSIGNMENT;}

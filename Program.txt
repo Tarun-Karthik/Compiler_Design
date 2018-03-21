@@ -1,6 +1,7 @@
 #include <stdio.h>
-void main ()
-{
 
+void main()
+{
+	int a[100];
 }
 
