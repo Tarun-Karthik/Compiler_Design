@@ -44,9 +44,9 @@ charlit '.+'
 
 "}" { close1(); return CLOSEBC;}
 
-"(" {return '(';}
+"[" { return OSBRACE;}
 
-")" {return ')';}
+"]" { return CSBRACE;}
 
 void {yylval.ival = VOID;keywordcount++; return VOID;}
 
@@ -89,9 +89,12 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 
 {pointer} {yylval.str=strdup(yytext);}
 
+<<<<<<< HEAD
+=======
 {array} {yylval.str=strdup(yytext); return ARRAY;}
 
 
+>>>>>>> 853146e7aa0e0f04b5fc1f9bfe32e4c57d9f595e
 "=" { return ASSIGNMENT;}
 
 "+" {return PLUS;}
@@ -150,9 +153,7 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 
 "'"  { return QUOT;}
 
-"[" { return OSBRACE;}
 
-"]" { return CSBRACE;}
 
 \/\/.* ;
 

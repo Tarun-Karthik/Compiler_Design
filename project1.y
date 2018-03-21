@@ -18,10 +18,17 @@ int arr[10];
 int gl1,gl2,ct=0,c=0,b;
 %}
 
+<<<<<<< HEAD
+%token<ival> INT FLOAT VOID CHAR ARRAY FUNCTION
+%token<str> VARCHAR DIGIT FDIGIT
+%token PREPROCESSOR HEADER KEYWORDS  SPACE COMMA LESS S_ADD FOR QUOT
+%token OPENBC CLOSEBC POINTER  DEFINE   S_SUB  PRINTF
+=======
 %token<ival> INT FLOAT VOID CHAR FUNCTION
 %token<str> VARCHAR DIGIT FDIGIT
 %token PREPROCESSOR HEADER KEYWORDS LINE SPACE COMMA LESS S_ADD FOR QUOT
 %token OPENBC CLOSEBC POINTER DEFINE ARRAY  S_SUB  PRINTF
+>>>>>>> 853146e7aa0e0f04b5fc1f9bfe32e4c57d9f595e
 %token MODULO INCREMENT DECREMENT S_MUL NEGDIGIT STRING
 %token ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN WHILE RETURN S_DIV
 %token SEMICOLON IF ELSE LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL CHARLIT OSBRACE CSBRACE
@@ -70,8 +77,9 @@ int gl1,gl2,ct=0,c=0,b;
 		                printf("Error : Type mismatch in redeclaration of %s : Line %d\n",$2,printline());
 	              else
 	               {
-		                  insert($2,FUNCTION,g_addr);
+
 		                  insert($2,$1,g_addr);
+											insert($2,271,g_addr);
 		                  g_addr+=4;
 	               }
 	    }
@@ -122,7 +130,7 @@ int gl1,gl2,ct=0,c=0,b;
             | conditional_statement
             | while_st
             | for_st
-            | Declaration SEMICOLON
+            | Declaration
             | function_call SEMICOLON
             | ret_statement SEMICOLON
             ;
@@ -138,7 +146,7 @@ int gl1,gl2,ct=0,c=0,b;
             | COMMA VARCHAR in_print_ext
             ;
 
-Declaration : types VARCHAR ASSIGNMENT consttype
+Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 						{
 							if( (!(strspn($4,"0123456789")==strlen($4))) && $1==258)
 								printf("\nError : Type Mismatch : Line %d\n",printline());
@@ -164,7 +172,31 @@ Declaration : types VARCHAR ASSIGNMENT consttype
 								g_addr+=4;
 							}
 						}
-						| types VARCHAR
+						|types VARCHAR OSBRACE assignment CSBRACE SEMICOLON  {
+
+						if(!lookup($2))
+						{
+							int currscope=stack[index1-1];
+							int previous_scope=returnscope($2,currscope);
+							if(currscope==previous_scope)
+								printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
+							else
+							{
+								insert_dup($2,$1,g_addr,currscope);
+								check_scope_update($2,"null",stack[index1-1]);
+								g_addr+=4;
+							}
+						}
+						else
+						{
+							int scope=stack[index1-1];
+						  insert($2,$1,g_addr);
+							insert($2,269,g_addr);
+							insertscope($2,scope);
+							g_addr+=4;
+						}
+										}
+						| types VARCHAR SEMICOLON
 						{
 						if(!lookup($2))
 						{
@@ -186,7 +218,7 @@ Declaration : types VARCHAR ASSIGNMENT consttype
 							g_addr+=4;
 						}
 						}
-						| assignment1   {
+						| assignment1 SEMICOLON {
 									if(!lookup($1))
 									{
 										int currscope=stack[index1-1];
@@ -198,12 +230,17 @@ Declaration : types VARCHAR ASSIGNMENT consttype
 										printf("\nError : Undeclared Variable %s : Line %d\n",$1,printline());
 									}
 
+<<<<<<< HEAD
+
+						| VARCHAR OSBRACE assignment1 CSBRACE SEMICOLON
+=======
 						| types VARCHAR OSBRACE assignment CSBRACE {
 											insert($2,ARRAY,g_addr);
 											insert($2,$1,g_addr);
 											g_addr+=4;
 										}
 						| VARCHAR OSBRACE assignment1 CSBRACE	
+>>>>>>> 853146e7aa0e0f04b5fc1f9bfe32e4c57d9f595e
 						;
 
 	assignment : VARCHAR ASSIGNMENT consttype

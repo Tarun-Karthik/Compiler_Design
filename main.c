@@ -148,9 +148,9 @@ int lookup(char *a)
 	for(i=0;i<n;i++)
 	{
 		if( !strcmp( a, st[i].token) )
-			return 0;   
+			return 0;
 	}
-	return 1; 
+	return 1;
 }
 
 
@@ -208,7 +208,7 @@ void insert(char *name, int type, int addr)
 {
 	int i;
 	if(lookup(name))
-	{ 
+	{
 		strcpy(st[n].token,name);
 		st[n].tn=1;
 		st[n].type[st[n].tn-1]=type;
@@ -217,13 +217,13 @@ void insert(char *name, int type, int addr)
 		n++;
 	}
 	else
-	{ 
-		for(i=0;i<n;i++)
+	{
+		for(i=0;i<=n;i++)
 		{
 			if(!strcmp(name,st[i].token))
 			{
 				st[i].tn++;
-				st[i].type[st[i].tn-1]=type; 
+				st[i].type[st[i].tn-1]=type;
 				break;
 			}
 		}
