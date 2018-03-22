@@ -7,6 +7,5 @@ void main()
 	int b=10;
 	
 	float b;    //Error - Duplicate declaration
-	int d[0];   //Error - Array size less than 1 
 }
 

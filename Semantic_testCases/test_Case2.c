@@ -9,9 +9,9 @@ int function()
 	//Error - int function has void return
 }
 
-void add(int a, int b) 
+void add(int a) 
 {
-	int c = a + b;
+	int c = a;
 
 	return(c);   //Error - void function has int return 
 }
