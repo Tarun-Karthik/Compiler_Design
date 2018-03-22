@@ -463,7 +463,12 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 							| RETURN VARCHAR
 							{
 							if(lookup($2))
-								printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
+								printf("\n Undeclared Variable %s : Line %d\n",$2,printline());
+								int x = returntype_func(ct);
+								int y = returntype($2,stack[index1-1]);
+								if(y!=x)
+								 printf("\nError : type Mismatch");
+
 						}
 						| RETURN '(' VARCHAR ')'
 						{
