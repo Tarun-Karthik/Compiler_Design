@@ -76,7 +76,8 @@ int gl1,gl2,ct=0,c=0,b;
 											insert($2,271,g_addr);
 		                  g_addr+=4;
 	               }
-	    }
+	    			}
+						| types VARCHAR args SEMICOLON
             ;
 
 
@@ -127,6 +128,7 @@ int gl1,gl2,ct=0,c=0,b;
             | Declaration
             | function_call SEMICOLON
             | ret_statement SEMICOLON
+						| assignment1 SEMICOLON
             ;
 
     print_statement
@@ -166,7 +168,7 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 								g_addr+=4;
 							}
 						}
-						|types VARCHAR OSBRACE assignment CSBRACE SEMICOLON  {
+						|types VARCHAR OSBRACE DIGIT CSBRACE SEMICOLON  {
 
 						if(!lookup($2))
 						{
@@ -177,7 +179,7 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 							else
 							{
 								insert_dup($2,$1,g_addr,currscope);
-								check_scope_update($2,"null",stack[index1-1]);
+								check_scope_update($2,$4,stack[index1-1]);
 								g_addr+=4;
 							}
 						}
@@ -212,7 +214,7 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 							g_addr+=4;
 						}
 						}
-						| assignment1 SEMICOLON {
+						| assignment1  {
 									if(!lookup($1))
 									{
 										int currscope=stack[index1-1];
@@ -250,6 +252,7 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 									int scope=returnscope($1,currscope);
 									if((scope<=currscope && end[scope]==0) && !(scope==0))
 										check_scope_update($1,$3,currscope);
+
 								}
 								}
 
@@ -333,11 +336,27 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
             ;
   _inc
             : VARCHAR INCREMENT
+						{
+						if(lookup($1))
+							printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+					}
             | INCREMENT VARCHAR
+						{
+						if(lookup($2))
+							printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
+					}
             ;
   _dec
             : VARCHAR DECREMENT
+						{
+						if(lookup($1))
+							printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+					}
             | DECREMENT VARCHAR
+						{
+						if(lookup($2))
+							printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
+					}
             ;
 
    conditions
@@ -353,6 +372,13 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
             | int_cond NOT_EQUAL consttype
             | int_cond EQUAL consttype
             | consttype
+						| VARCHAR
+						{
+						if(lookup($1))
+							printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+					}
+
+
             ;
 
 
@@ -379,6 +405,12 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 						          storereturn(ct,INT); ct++;
               }
               | RETURN  {storereturn(ct,VOID); ct++;}
+							| RETURN VARCHAR
+							{
+							if(lookup($2))
+								printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
+						}
+
               ;
 
   char_expression
