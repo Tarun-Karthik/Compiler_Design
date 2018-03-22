@@ -78,6 +78,7 @@ int gl1,gl2,ct=0,c=0,b;
 	               }
 	    			}
 						| types VARCHAR args SEMICOLON
+
             ;
 
 
@@ -126,9 +127,10 @@ int gl1,gl2,ct=0,c=0,b;
             | while_st
             | for_st
             | Declaration
+						| assignment1 SEMICOLON
             | function_call SEMICOLON
             | ret_statement SEMICOLON
-						| assignment1 SEMICOLON
+						| assignment SEMICOLON
             ;
 
     print_statement
@@ -178,6 +180,8 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 								printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
 							else
 							{
+							if($4<=0)
+								printf("\nError : Invalid Size of %s : Line %d\n",$2,printline());
 								insert_dup($2,$1,g_addr,currscope);
 								check_scope_update($2,$4,stack[index1-1]);
 								g_addr+=4;
@@ -231,11 +235,17 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 
 
 						| VARCHAR OSBRACE assignment1 CSBRACE SEMICOLON
+						| assignment
 
 						;
 
-	assignment : VARCHAR ASSIGNMENT consttype
+	assignment : VARCHAR ASSIGNMENT assignment
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n variable not declared");
+							}
 							| VARCHAR PLUS assignment
+							| VARCHAR MINUS assignment
 							| VARCHAR COMMA assignment
 							| consttype COMMA assignment
 							| VARCHAR
@@ -263,6 +273,17 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
 										}
 							| consttype COMMA assignment1
+							| VARCHAR PLUS VARCHAR
+							{
+											if(direscope($1,stack[index1])==0)
+												printf("\n variable not declared");
+											if(lookup($1))
+												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+											if(lookup($3))
+													printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+
+										}
+
 							| VARCHAR  {
 								if(lookup($1))
 									printf("\nUndeclared Variable %s : Line %d\n",$1,printline());

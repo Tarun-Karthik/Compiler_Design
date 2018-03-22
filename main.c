@@ -125,6 +125,20 @@ void insertscope(char *a,int s)
 		}
 	}
 }
+int direscope(char *a,int scope)
+{
+	int i;
+	int max = 0;
+	for(i=0;i<=n;i++)
+	{
+		if(!strcmp(a,st[i].token) && scope==st[i].scope)
+		{
+			max = 1;
+			return max;
+		}
+	}
+	return max;
+}
 int returnscope(char *a,int cs)
 {
 	int i;
