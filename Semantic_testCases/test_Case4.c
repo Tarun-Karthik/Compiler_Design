@@ -4,12 +4,11 @@
 void main()
 {
 	int i = 10;
-	
-	while(i = 1)   // Error - condition is not returning boolean value
+
+	while(i)   
 	{
 		int b=10;
 		b = b - i;
 	}
 
 }
-

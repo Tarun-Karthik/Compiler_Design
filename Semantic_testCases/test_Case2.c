@@ -2,25 +2,24 @@
 
 #include <stdio.h>
 
-int function()
-{
-	printf("This function is for nothing");
-	
-	//Error - int function has void return
-}
 
-void add(int a, int b) 
-{
-	int c = a + b;
-
-	return(c);   //Error - void function has int return 
-}
-
-int function(int b);  //Error - Function redeclaration
-void random(void a);  //Error - Parameter of type Void
 
 void main()
 {
 	float d;
-	int b=10; 
+	int b=10;
+}
+
+int function()
+{
+	printf("This function is for nothing");
+
+	return ;//Error - int function has void return
+}
+
+void dd( int b)
+{
+	int c = 1000;
+
+	return c ;   //Error - void function has int return
 }

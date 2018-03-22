@@ -186,6 +186,8 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 						else
 						{
 							int scope=stack[index1-1];
+							if($4<=0)
+								printf("\nError : Invalid Size of %s : Line %d\n",$2,printline());
 						  insert($2,$1,g_addr);
 							insert($2,269,g_addr);
 							insertscope($2,scope);
