@@ -78,6 +78,18 @@ int gl1,gl2,ct=0,c=0,b;
 	               }
 	    			}
 						| types VARCHAR args SEMICOLON
+						{
+						if(lookup($1))
+							{
+							insert($2,$1,g_addr);
+							insert($2,271,g_addr);
+							g_addr+=4;
+							}
+					    else
+							{
+							 printf("\n Error : function redeclared");
+							}
+						}
 
             ;
 
@@ -128,9 +140,13 @@ int gl1,gl2,ct=0,c=0,b;
             | for_st
             | Declaration
 						| assignment1 SEMICOLON
-            | function_call SEMICOLON
             | ret_statement SEMICOLON
 						| assignment SEMICOLON
+						| VARCHAR args SEMICOLON
+						{
+							if(lookup($1))
+						  printf("function not declared");
+						}
             ;
 
     print_statement
@@ -242,11 +258,23 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 	assignment : VARCHAR ASSIGNMENT assignment
 							{
 							if(direscope($1,stack[index1-1])==0)
-								printf("\n variable not declared");
+								printf("\n Error : variable not declared ");
 							}
 							| VARCHAR PLUS assignment
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n Error : variable not declared ");
+							}
 							| VARCHAR MINUS assignment
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n Error : variable not declared ");
+							}
 							| VARCHAR COMMA assignment
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n Error : variable not declared ");
+							}
 							| consttype COMMA assignment
 							| VARCHAR
 							| consttype
@@ -394,12 +422,16 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
             | int_cond MORE consttype
             | int_cond NOT_EQUAL consttype
             | int_cond EQUAL consttype
+						| int_cond ASSIGNMENT consttype
+						{
+						printf("\n Error : boolean expression required");
+						}
             | consttype
 						| VARCHAR
 						{
 						if(lookup($1))
 							printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-					}
+					  }
 
 
             ;
@@ -433,7 +465,11 @@ Declaration : types VARCHAR ASSIGNMENT consttype SEMICOLON
 							if(lookup($2))
 								printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
 						}
-
+						| RETURN '(' VARCHAR ')'
+						{
+						if(lookup($3))
+							printf("\nUndeclared Variable %s : Line %d\n",$3,printline());
+					}
               ;
 
   char_expression

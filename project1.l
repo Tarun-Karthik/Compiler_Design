@@ -34,7 +34,7 @@ charlit '.+'
 
 [ \t] ;
 
-\n {  linecount++;  }
+\n {  yylineno++;  }
 
 {preprocessor} { return PREPROCESSOR;}
 
