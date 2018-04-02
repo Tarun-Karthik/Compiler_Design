@@ -1,7 +1,15 @@
 #include <stdio.h>
-
-void main()
+int main()
 {
-	int a[100];
+	int a=5;
+	int b=6;
+	if(a<=7)
+	{
+		b=b-4;
+	}
+	else
+	{
+		b=2;
+	}
+	return 0;
 }
-

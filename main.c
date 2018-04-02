@@ -30,10 +30,9 @@ struct sym
 	int scope;
 }st[100];
 
-
-
-
 int n=0,arr[10];
+float t[100];
+int iter=0;
 
 int returntype_func(int ct)
 {
@@ -78,7 +77,7 @@ int returnscope(char *a,int cs)
 	int max = 0;
 	for(i=0;i<=n;i++)
 	{
-		if(!strcmp(a,st[i].token) && cs>=st[i].scope)
+		if(!(strcmp(a,st[i].token)) && cs>=st[i].scope)
 		{
 			if(st[i].scope>=max)
 				max = st[i].scope;
@@ -107,7 +106,9 @@ int returntype(char *a,int sct)
 	for(i=0;i<=n;i++)
 	{
 		if(!strcmp(a,st[i].token) && st[i].scope==sct)
+		{
 			return st[i].type[0];
+		}
 	}
 }
 
