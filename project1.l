@@ -18,13 +18,14 @@ alpha [A-Za-z]
 varchar [a-zA-Z_][a-zA-Z0-9_]*
 number [0-9]*"."[0-9]*
 string \".+\"
+literal \'[A-Za-z]\'
 digit [0-9]
 invalidid {digit}+[_a-zA-Z]+[_a-zA-Z0-9]*
 pointer "*"{varchar}
 array {varchar}"["{digit}+"]"
 illegel "@"|"$"
 define #define
-negdigit -{digit}
+negdigit -[0-9]*
 charlit '.+'
 
 %s comment
@@ -76,6 +77,8 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 
 {digit}+\.{digit}+ {yylval.str=strdup(yytext);return FDIGIT;}
 
+{negdigit} { yylval.str=strdup(yytext);return NDIGIT;}
+
 {define} ;
 
 {invalidid} {if(mcomment==0)printf("\nERROR 1 : Line number %d : Invalid Identifier  :%s",linecount,yytext);}
@@ -94,7 +97,6 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 
 "+" {return PLUS;}
 
-"-" { return MINUS;}
 
 "*" {return MULTIPLY;}
 
@@ -153,8 +155,9 @@ int {yylval.ival = INT;keywordcount++;  return INT;}
 \/\/.* ;
 
 \/\*(.*\n)*.*\*\/ ;
-
+\'[a-zA-Z]\' return LITERAL;
 \".*\"	return STRING;
+
 
 .	return yytext[0];
 

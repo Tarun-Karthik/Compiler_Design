@@ -30,9 +30,13 @@ struct sym
 	int scope;
 }st[100];
 
+
+
+
 int n=0,arr[10];
 float t[100];
 int iter=0;
+
 
 int returntype_func(int ct)
 {
@@ -63,7 +67,7 @@ int direscope(char *a,int scope)
 	int max = 0;
 	for(i=0;i<=n;i++)
 	{
-		if(!strcmp(a,st[i].token) && scope==st[i].scope)
+		if(!(strcmp(a,st[i].token)) && scope==st[i].scope)
 		{
 			max = 1;
 			return max;
@@ -77,10 +81,12 @@ int returnscope(char *a,int cs)
 	int max = 0;
 	for(i=0;i<=n;i++)
 	{
-		if(!(strcmp(a,st[i].token)) && cs>=st[i].scope)
+		if(!strcmp(a,st[i].token) && cs>=st[i].scope)
 		{
 			if(st[i].scope>=max)
+			{
 				max = st[i].scope;
+			}
 		}
 	}
 	return max;
@@ -106,9 +112,7 @@ int returntype(char *a,int sct)
 	for(i=0;i<=n;i++)
 	{
 		if(!strcmp(a,st[i].token) && st[i].scope==sct)
-		{
 			return st[i].type[0];
-		}
 	}
 }
 
@@ -216,6 +220,8 @@ printf("\nSymbol Table\n\n");
 				printf("\tARRAY");
 			else if(st[i].type[j]==260)
 				printf("\tVOID");
+			else if(st[i].type[j]==261)
+				printf("\tCHAR");
 		}
 		printf("\n");
 	}

@@ -10,10 +10,12 @@
 
 int g_addr = 100;
 int i=1;
+
 int stack[100];
 int index1=0;
 int end[100];
 int arr[10];
+
 int gl1,gl2,ct,c,b;
 
 int fl,top=0,label[20],lnum=0,ltop=0;
@@ -172,9 +174,8 @@ void codegen_assign()
 
 %}
 
-
-%token<ival> INT FLOAT VOID CHAR ARRAY FUNCTION
-%token<str> VARCHAR DIGIT FDIGIT LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL LESS
+%token<ival> INT FLOAT VOID CHAR ARRAY FUNCTION DIGIT FDIGIT NDIGIT
+%token<str> VARCHAR  LITERAL LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL LESS
 %token PREPROCESSOR HEADER KEYWORDS  SPACE COMMA S_ADD FOR QUOT
 %token OPENBC CLOSEBC POINTER  DEFINE   S_SUB  PRINTF
 %token MODULO INCREMENT DECREMENT S_MUL NEGDIGIT STRING
@@ -186,7 +187,7 @@ void codegen_assign()
 
 %type<str> assignment assignment1 consttype ASSIGNMENT PLUS MINUS MULTIPLY DIVIDE E T F
 %type<ival> types
-
+int temp;
 
 
 %union {
@@ -195,12 +196,6 @@ void codegen_assign()
 }
 
 /* Decleration*/
-
-
-
-
-
-
 
 %%
     /* Rules*/
@@ -216,32 +211,40 @@ void codegen_assign()
     funcdef
             : types VARCHAR args block_statement
             {
+								if(!lookup($2))
+								{
+								 printf("\n Error : Function redefined");
+								}
                 if ($1!=returntype_func(ct))
-	        {
-		       printf("\nError : Type mismatch : Line %d\n",printline());
-	        }
-	        if (!(strcmp($2,"printf") && strcmp($2,"scanf")))
-		       printf("Error : Type mismatch in redeclaration of %s : Line %d\n",$2,printline());
-	        else
-	        {
-		       insert($2,$1,g_addr);
-		       insert($2,271,g_addr);
-		       g_addr+=4;
-	        }
-	     }
-	     | types VARCHAR args SEMICOLON
-	     {
-		if(lookup($1))
-		{
-			insert($2,$1,g_addr);
-			insert($2,271,g_addr);
-			g_addr+=4;
-		}
-		else
-		{
-			printf("\n Error : function redeclared");
-		}
-	      }
+	               {
+		                printf("\nError : Type mismatch : Line %d\n",printline());
+	               }
+
+	              if (!(strcmp($2,"printf") && strcmp($2,"scanf")))
+		                printf("Error : Type mismatch in redeclaration of %s : Line %d\n",$2,printline());
+	              else
+	               {
+
+											storereturn(ct,$1);ct++;
+		                  insert($2,$1,g_addr);
+											insert($2,271,g_addr);
+		                  g_addr+=4;
+	               }
+	    			}
+						| types VARCHAR args SEMICOLON
+						{
+						if(lookup($1))
+							{
+							insert($2,$1,g_addr);
+							insert($2,271,g_addr);
+							g_addr+=4;
+							}
+					    else
+							{
+							 printf("\n Error : function redeclared");
+							}
+						}
+
             ;
 
 
@@ -251,13 +254,13 @@ void codegen_assign()
 
     var_def_list
             :
-	    | var_def var_def_list1
+						| var_def var_def_list1
             ;
 
-    var_def_list1
-	    :
-	    | var_def_list_extension var_def_list1
-	    ;
+		var_def_list1
+						:
+						| var_def_list_extension var_def_list1
+						;
 
     var_def_list_extension
             : COMMA var_def
@@ -290,14 +293,20 @@ void codegen_assign()
             | while_st
             | for_st
             | Declaration
-	    | assignment1 SEMICOLON
-            | ret_statement SEMICOLON
-	    | assignment SEMICOLON
-	    | VARCHAR args SEMICOLON
-		{
-			if(lookup($1))
-			printf("function not declared");
-		}
+						| assignment1 SEMICOLON
+            | ret_statement
+						| assignment SEMICOLON
+						| VARCHAR args SEMICOLON
+						{
+							if(lookup($1))
+						  printf("function not declared");
+							int sct=returnscope($1,stack[index1-1]);
+							int x = returntype($1,sct);
+							if(x!=271)
+							{
+							printf("\n Error : Function not defined");
+							}
+						}
             ;
 
     print_statement
@@ -311,171 +320,175 @@ void codegen_assign()
             | COMMA VARCHAR in_print_ext
             ;
 
-Declaration : types VARCHAR {push($2);} '=' {strcpy(st1[++top],"=");} E {codegen_assign();} SEMICOLON
-		{
-			if( (!(strspn($6,"0123456789")==strlen($6))) && $1==258 && (fl==0))
-			{
-				printf("\nError : Type Mismatch : Line %d\n",printline());
-				fl=1;
-			} 
-			if(!lookup($2))
-			{
-				int currscope=stack[index1-1];
-				int previous_scope=returnscope($2,currscope);
-				if(currscope==previous_scope)
-				printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
-				else
-				{
-					insert_dup($2,$1,g_addr,currscope);
-					check_scope_update($2,$6,stack[index1-1]);
-					int sg=returnscope($2,stack[index1-1]);
-					g_addr+=4;
-				}
-			}
-			else
-			{
-				int scope=stack[index1-1];
-				insert($2,$1,g_addr);
-				insertscope($2,scope);
-				check_scope_update($2,$6,stack[index1-1]);
-				g_addr+=4;
-			}
-		}
-	     |types VARCHAR OSBRACE DIGIT CSBRACE SEMICOLON  
-		{
-			if(!lookup($2))
-			{
-				int currscope=stack[index1-1];
-				int previous_scope=returnscope($2,currscope);
-				if(currscope==previous_scope)
-					printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
-				else
-				{
-					if($4<=0)
+Declaration : types VARCHAR {push($2);} ASSIGNMENT {strcpy(st1[++top],"=");} E {codegen_assign();} SEMICOLON
+						{
+							if( (!(strspn($6,"0123456789")==strlen($6))) && ($1==258||$1==259) && (fl==0))
+							{
+								printf("\nError : Type Mismatch : Line %d\n",printline());
+								fl=1;
+							}
+
+							if(($1==261 &&!(strspn($4,"qwertyuiopasdfghjklzxcvbnm")==strlen($4)) ))
+								printf("\nError : Type Mismatch : Line %d\n",printline());
+							else
+
+							if(!lookup($2))
+							{
+								int currscope=stack[index1-1];
+								int previous_scope=returnscope($2,currscope);
+								if(currscope==previous_scope)
+									printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
+								else
+								{
+									insert_dup($2,$1,g_addr,currscope);
+									check_scope_update($2,$6,stack[index1-1]);
+									g_addr+=4;
+								}
+							}
+							else
+							{
+								int scope=stack[index1-1];
+								insert($2,$1,g_addr);
+								insertscope($2,scope);
+								check_scope_update($2,$6,stack[index1-1]);
+								g_addr+=4;
+							}
+						}
+						|types VARCHAR OSBRACE DIGIT CSBRACE SEMICOLON  {
+						if($4<=0)
+							printf("\nError : Invalid Size of %s : Line %d\n",$2,printline());
+						if(!lookup($2))
+						{
+							int currscope=stack[index1-1];
+							int previous_scope=returnscope($2,currscope);
+							if(currscope==previous_scope)
+								printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
+							else
+							{
+								insert_dup($2,$1,g_addr,currscope);
+								check_scope_update($2,$4,stack[index1-1]);
+								g_addr+=4;
+							}
+						}
+						else
+						{
+							int scope=stack[index1-1];
+						  insert($2,$1,g_addr);
+							insert($2,269,g_addr);
+							insertscope($2,scope);
+							g_addr+=4;
+						}
+										}
+						|types VARCHAR OSBRACE NDIGIT CSBRACE SEMICOLON
+						{
 						printf("\nError : Invalid Size of %s : Line %d\n",$2,printline());
-					insert_dup($2,$1,g_addr,currscope);
-					check_scope_update($2,$4,stack[index1-1]);
-					g_addr+=4;
-				}
-			}
-			else
-			{
-				int scope=stack[index1-1];
-				if($4<=0)
-					printf("\nError : Invalid Size of %s : Line %d\n",$2,printline());
-				insert($2,$1,g_addr);
-				insert($2,269,g_addr);
-				insertscope($2,scope);
-				g_addr+=4;
-			}
-		}
-	     |types VARCHAR SEMICOLON
-		{
-			if(!lookup($2))
-			{
-				int currscope=stack[index1-1];
-				int previous_scope=returnscope($2,currscope);
-				if(currscope==previous_scope)
-					printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
-				else
-				{
-					insert_dup($2,$1,g_addr,currscope);
-					g_addr+=4;
-				}
-			}
-			else
-			{
-				int scope=stack[index1-1];
-				insert($2,$1,g_addr);
-				insertscope($2,scope);
-				g_addr+=4;
-			}
-		}
-	     |assignment1  
-		{
-			if(!lookup($1))
-			{
-				int currscope=stack[index1-1];
-				int scope=returnscope($1,currscope);
-				if(!(scope<=currscope && end[scope]==0) || scope==0)
-					printf("\nError : Variable %s out of scope : Line %d\n",$1,printline());
-			}
-			else
-				printf("\nError : Undeclared Variable %s : Line %d\n",$1,printline());
-		}
-	     |VARCHAR OSBRACE assignment1 CSBRACE SEMICOLON
-	     |assignment
-	     ;
+						}
+						| types VARCHAR SEMICOLON
+						{
+						if(!lookup($2))
+						{
+							int currscope=stack[index1-1];
+							int previous_scope=returnscope($2,currscope);
+							if(currscope==previous_scope)
+								printf("\nError : Redeclaration of %s : Line %d\n",$2,printline());
+							else
+							{
+								insert_dup($2,$1,g_addr,currscope);
+								g_addr+=4;
+							}
+						}
+						else
+						{
+							int scope=stack[index1-1];
+							insert($2,$1,g_addr);
+							insertscope($2,scope);
+							g_addr+=4;
+						}
+						}
+						| assignment1  {
+									if(!lookup($1))
+									{
+										int currscope=stack[index1-1];
+										int scope=returnscope($1,currscope);
+										if(!(scope<=currscope && end[scope]==0) || scope==0)
+											printf("\nError : Variable %s out of scope : Line %d\n",$1,printline());
+									}
+									else
+										printf("\nError : Undeclared Variable %s : Line %d\n",$1,printline());
+									}
+						| assignment
+
+						;
 
 	assignment : VARCHAR ASSIGNMENT assignment
-			{
-				if(direscope($1,stack[index1-1])==0)
-					printf("\n Error : variable not declared ");
-			}
-		   | VARCHAR PLUS assignment
-			{
-				if(direscope($1,stack[index1-1])==0)
-					printf("\n Error : variable not declared ");
-			}
-		   | VARCHAR MINUS assignment
-			{
-				if(direscope($1,stack[index1-1])==0)
-					printf("\n Error : variable not declared ");
-			}
-		   | VARCHAR COMMA assignment
-			{
-				if(direscope($1,stack[index1-1])==0)
-					printf("\n Error : variable not declared ");
-			}
-		   | consttype COMMA assignment
-		   | VARCHAR
-		   | consttype
-		   ;
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n Error : variable not declared ");
+							}
+							| VARCHAR PLUS assignment
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n Error : variable not declared ");
+							}
+							| VARCHAR MINUS assignment
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n Error : variable not declared ");
+							}
+							| VARCHAR COMMA assignment
+							{
+							if(direscope($1,stack[index1-1])==0)
+								printf("\n Error : variable not declared ");
+							}
+							| consttype COMMA assignment
+							| VARCHAR
+							| consttype
+							;
 
-	assignment1 : VARCHAR {push($1);} '=' {strcpy(st1[++top],"=");} E {codegen_assign();}
-			{
-				int sct=returnscope($1,stack[index1-1]);
-				int type=returntype($1,sct);
-				if((!(strspn($5,"0123456789")==strlen($5))) && type==258 && fl==0)
-					printf("\nError : Type Mismatch : Line %d\n",printline());
-				if(!lookup($1))
-					{
-						int currscope=stack[index1-1];
-						int scope=returnscope($1,currscope);
-						if((scope<=currscope && end[scope]==0) && !(scope==0))
-						check_scope_update($1,$5,currscope);
+	assignment1 : VARCHAR {push($1);} ASSIGNMENT {strcpy(st1[++top],"=");} E {codegen_assign();}
+							{
+								int sct=returnscope($1,stack[index1-1]);
+								int type=returntype($1,sct);
+								if((!(strspn($5,"0123456789")==strlen($5))) && type==258 && fl==0)
+									printf("\nError : Type Mismatch : Line %d\n",printline());
+								if(!lookup($1))
+								{
+									int currscope=stack[index1-1];
+									int scope=returnscope($1,currscope);
+									if((scope<=currscope && end[scope]==0) && !(scope==0))
+										check_scope_update($1,$5,currscope);
 
-					}
-			}
+								}
+								}
 
-		    | VARCHAR COMMA assignment1    
-			{
-				if(lookup($1))
-					printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-			}
-		    | consttype COMMA assignment1
-		    | VARCHAR PLUS VARCHAR
-			{
-				if(direscope($1,stack[index1])==0)
-					printf("\n variable not declared");
-				if(lookup($1))
-					printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-				if(lookup($3))
-					printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+							| VARCHAR COMMA assignment1    {
+											if(lookup($1))
+												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+										}
+							| consttype COMMA assignment1
+							| VARCHAR PLUS VARCHAR
+							{
+											if(direscope($1,stack[index1])==0)
+												printf("\n variable not declared");
+											if(lookup($1))
+												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+											if(lookup($3))
+													printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
 
-			}
+										}
 
-		    | VARCHAR  
-			{
-				if(lookup($1))
-					printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-			}
-		    | consttype
-		    ;
+							| VARCHAR  {
+								if(lookup($1))
+									printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+								}
+							| consttype
+							;
 
-   consttype : DIGIT
-	     | FDIGIT
-	     ;
+	consttype : DIGIT
+	| FDIGIT
+	| LITERAL
+	| NDIGIT
+	;
    id_list
             : VARCHAR id_list_1
             | assignment_statement id_list_1
@@ -541,27 +554,27 @@ Declaration : types VARCHAR {push($2);} '=' {strcpy(st1[++top],"=");} E {codegen
             ;
   _inc
             : VARCHAR INCREMENT
-		{
-			if(lookup($1))
-				printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-		}
+						{
+						if(lookup($1))
+							printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+					}
             | INCREMENT VARCHAR
-		{
-			if(lookup($2))
-				printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
-		}
+						{
+						if(lookup($2))
+							printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
+					}
             ;
   _dec
             : VARCHAR DECREMENT
-		{
-			if(lookup($1))
-				printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-		}
+						{
+						if(lookup($1))
+							printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+					}
             | DECREMENT VARCHAR
-		{
-			if(lookup($2))
-				printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
-		}
+						{
+						if(lookup($2))
+							printf("\nUndeclared Variable %s : Line %d\n",$2,printline());
+					}
             ;
 
    conditions
@@ -576,16 +589,16 @@ Declaration : types VARCHAR {push($2);} '=' {strcpy(st1[++top],"=");} E {codegen
             | int_cond MORE consttype
             | int_cond NOT_EQUAL consttype
             | int_cond EQUAL consttype
-	    | int_cond ASSIGNMENT consttype
-		{
-			printf("\n Error : boolean expression required");
-		}
+						| int_cond ASSIGNMENT consttype
+						{
+						printf("\n Error : boolean expression required");
+						}
             | consttype
-	    | VARCHAR
-		{
-			if(lookup($1))
-			printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-		}
+						| VARCHAR
+						{
+						if(lookup($1))
+							printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+					  }
 
 
             ;
@@ -607,30 +620,31 @@ Declaration : types VARCHAR {push($2);} '=' {strcpy(st1[++top],"=");} E {codegen
               ;
 
   ret_statement
-              : RETURN consttype 
-		{
-                	if(!(strspn($2,"0123456789")==strlen($2)))
-				storereturn(ct,FLOAT);
-			else
-				storereturn(ct,INT); ct++;
-              	}
-              | RETURN  {storereturn(ct,VOID); ct++;}
-	      | RETURN E
-	      | RETURN VARCHAR
-		{
-			if(lookup($2))
-			printf("\n Undeclared Variable %s : Line %d\n",$2,printline());
-			int x = returntype_func(ct);
-			int y = returntype($2,stack[index1-1]);
-			if(y!=x)
-				printf("\nError : type Mismatch");
+              : RETURN consttype SEMICOLON {
+                if(!(strspn($2,"0123456789")==strlen($2)))
+						          storereturn(ct,FLOAT);
+					      else
+						          storereturn(ct,INT); ct++;
+              }
+              | RETURN SEMICOLON {storereturn(ct,VOID); ct++;}
+							| RETURN VARCHAR SEMICOLON
+							{
 
-		}
-	      | RETURN '(' VARCHAR ')'
-		{
-			if(lookup($3))
-			printf("\nUndeclared Variable %s : Line %d\n",$3,printline());
-		}
+							if(lookup($2))
+								printf("\n Undeclared Variable %s : Line %d\n",$2,printline());
+
+								int y = returntype($2,stack[index1-1]);
+								int x = returntype_func(ct);
+								if(y!=x)
+								 printf("\nError : type Mismatch");
+
+						}
+						| RETURN '(' VARCHAR ')' SEMICOLON
+						{
+						if(lookup($3))
+							printf("\nUndeclared Variable %s : Line %d\n",$3,printline());
+					}
+
               ;
 
   char_expression
@@ -673,7 +687,6 @@ Declaration : types VARCHAR {push($2);} '=' {strcpy(st1[++top],"=");} E {codegen
 int main()
 {
   yyin = fopen("Program.txt","r");
-  yyparse();
 	if(!yyparse())
 	{
 		printf("\n Parsing Done");
