@@ -7,16 +7,16 @@ int main()
 	{
 		if(a==9)
 		{
-			printf("a equals 9");
+			a = a+1;
 		}
 		else
 		{
-			printf("a is not 9");
+			b = b -1;
 		}
 	}
 	else
 	{
-		printf("a greater than 7");
+		a = a -1;
 	}
 	return 0;
 }
