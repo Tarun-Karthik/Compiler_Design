@@ -1,15 +1,18 @@
 #include <stdio.h>
 int main()
 {
-	int a=5;
-	int b=6;
-	if(a<=7)
+	int x = 10;
+	int y = 10;
+	if(x<20)
 	{
-		b=b-4;
+		x = 1;
+		while(x<10);
+			x = x + 1;
 	}
 	else
 	{
-		b=2;
+	 y = 2;
 	}
-	return 0;
+
+ return 1;
 }

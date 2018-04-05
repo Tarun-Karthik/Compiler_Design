@@ -51,8 +51,8 @@ void if1()
 	printf("%s = not %s\n",temp,st1[top]);
  	printf("if %s goto L%d\n",temp,lnum);
 	i_[0]++;
-	label[++ltop]=lnum;	
-	
+	label[++ltop]=lnum;
+
 }
 void if2()
 {
@@ -116,7 +116,7 @@ void f2()
 	printf("goto L%d\n",lnum);
 	label[++ltop]=lnum;
 	lnum++;
-	printf("L%d:\n",lnum);	
+	printf("L%d:\n",lnum);
 	label[++ltop]=lnum;
 }
 void f3()
@@ -146,7 +146,7 @@ void array1()
 	printf("%s = %s [ %s ] \n",temp,st1[top-1],st1[top]);
 	top--;
 	strcpy(st1[top],temp);
-	i_[0]++;	
+	i_[0]++;
 }
 void codegen()
 {
@@ -174,8 +174,8 @@ void codegen_assign()
 
 %}
 
-%token<ival> INT FLOAT VOID CHAR ARRAY FUNCTION DIGIT FDIGIT NDIGIT
-%token<str> VARCHAR  LITERAL LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL LESS
+%token<ival> INT FLOAT VOID CHAR ARRAY FUNCTION  FDIGIT NDIGIT
+%token<str> VARCHAR  LITERAL LESS_EQUAL MORE_EQUAL MORE EQUAL NOT_EQUAL LESS DIGIT
 %token PREPROCESSOR HEADER KEYWORDS  SPACE COMMA S_ADD FOR QUOT
 %token OPENBC CLOSEBC POINTER  DEFINE   S_SUB  PRINTF
 %token MODULO INCREMENT DECREMENT S_MUL NEGDIGIT STRING
@@ -186,7 +186,7 @@ void codegen_assign()
 %right ASSIGNMENT
 
 %type<str> assignment assignment1 consttype ASSIGNMENT PLUS MINUS MULTIPLY DIVIDE E T F
-%type<ival> types
+%type<str> types
 int temp;
 
 
@@ -295,7 +295,6 @@ int temp;
             | Declaration
 						| assignment1 SEMICOLON
             | ret_statement
-						| assignment SEMICOLON
 						| VARCHAR args SEMICOLON
 						{
 							if(lookup($1))
@@ -416,9 +415,52 @@ Declaration : types VARCHAR {push($2);} ASSIGNMENT {strcpy(st1[++top],"=");} E {
 									else
 										printf("\nError : Undeclared Variable %s : Line %d\n",$1,printline());
 									}
-						| assignment
 
 						;
+            assignment1 : VARCHAR {push($1);} ASSIGNMENT {strcpy(st1[++top],"=");} E {codegen_assign();}
+          							{
+          								int sct=returnscope($1,stack[index1-1]);
+          								int type=returntype($1,sct);
+          								if((!(strspn($5,"0123456789")==strlen($5))) && type==258 && fl==0)
+          									printf("\nError : Type Mismatch : Line %d\n",printline());
+          								if(!lookup($1))
+          								{
+          									int currscope=stack[index1-1];
+          									int scope=returnscope($1,currscope);
+          									if((scope<=currscope && end[scope]==0) && !(scope==0))
+          										check_scope_update($1,$5,currscope);
+
+          								}
+          								}
+
+          							| VARCHAR COMMA assignment1    {
+          											if(lookup($1))
+          												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+          										}
+          							| consttype COMMA assignment1
+          							| VARCHAR PLUS VARCHAR
+          							{
+          											if(direscope($1,stack[index1])==0)
+          												printf("\n variable not declared");
+          											if(lookup($1))
+          												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+          											if(lookup($3))
+          													printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+
+          										}
+
+          							| VARCHAR  {
+          								if(lookup($1))
+          									printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
+          								}
+          							| consttype
+          							;
+
+          	consttype : DIGIT
+          	| FDIGIT
+          	| LITERAL
+          	| NDIGIT
+          	;
 
 	assignment : VARCHAR ASSIGNMENT assignment
 							{
@@ -445,50 +487,7 @@ Declaration : types VARCHAR {push($2);} ASSIGNMENT {strcpy(st1[++top],"=");} E {
 							| consttype
 							;
 
-	assignment1 : VARCHAR {push($1);} ASSIGNMENT {strcpy(st1[++top],"=");} E {codegen_assign();}
-							{
-								int sct=returnscope($1,stack[index1-1]);
-								int type=returntype($1,sct);
-								if((!(strspn($5,"0123456789")==strlen($5))) && type==258 && fl==0)
-									printf("\nError : Type Mismatch : Line %d\n",printline());
-								if(!lookup($1))
-								{
-									int currscope=stack[index1-1];
-									int scope=returnscope($1,currscope);
-									if((scope<=currscope && end[scope]==0) && !(scope==0))
-										check_scope_update($1,$5,currscope);
 
-								}
-								}
-
-							| VARCHAR COMMA assignment1    {
-											if(lookup($1))
-												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-										}
-							| consttype COMMA assignment1
-							| VARCHAR PLUS VARCHAR
-							{
-											if(direscope($1,stack[index1])==0)
-												printf("\n variable not declared");
-											if(lookup($1))
-												printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-											if(lookup($3))
-													printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-
-										}
-
-							| VARCHAR  {
-								if(lookup($1))
-									printf("\nUndeclared Variable %s : Line %d\n",$1,printline());
-								}
-							| consttype
-							;
-
-	consttype : DIGIT
-	| FDIGIT
-	| LITERAL
-	| NDIGIT
-	;
    id_list
             : VARCHAR id_list_1
             | assignment_statement id_list_1
